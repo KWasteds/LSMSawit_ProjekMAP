@@ -10,4 +10,17 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+
+    <string name="hint_email">Enter your email</string>
+    <string name="hint_password">Enter your password</string>
+    <string name="remember_me">Remember me</string>
+    <string name="btn_login">Login Now</string>
+    <string name="txt_register_now">Don’t have an account? Sign up now</string>
+    <string name="btn_register">Register Now</string>
+    <string name="hint_name">Enter your name</string>
+    <string name="hint_confirm_password">Confirm password</string>
+    <string name="accept_terms">I accept all terms &amp; conditions</string>
+
+    <string name="register_title">Registration</string>
+    <string name="login_now">Already have an account? Login now</string>
 </resources>
