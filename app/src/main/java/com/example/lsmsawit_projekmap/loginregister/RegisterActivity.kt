@@ -21,7 +21,6 @@ class RegisterActivity : AppCompatActivity() {
             val name = binding.etName.text.toString().trim()
             val email = binding.etEmail.text.toString().trim()
             val pass = binding.etPassword.text.toString()
-            val confirm = binding.etConfirmPassword.text.toString()
 
             // Validasi sederhana
             if (name.isEmpty()) {
@@ -36,16 +35,12 @@ class RegisterActivity : AppCompatActivity() {
                 binding.etPassword.error = "Password minimal 6 karakter"
                 return@setOnClickListener
             }
-            if (pass != confirm) {
-                binding.etConfirmPassword.error = "Password konfirmasi tidak sama"
-                return@setOnClickListener
-            }
             if (!binding.cbTerms.isChecked) {
                 Toast.makeText(this, "Silakan setuju syarat & ketentuan", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Contoh penyimpanan ringan: SharedPreferences (JANGAN simpan password plaintext di aplikasi produksi)
+            // Contoh penyimpanan ringan: SharedPreferences
             val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
             prefs.edit()
                 .putString("user_name", name)
@@ -53,7 +48,7 @@ class RegisterActivity : AppCompatActivity() {
                 .putBoolean("is_logged_in", true)
                 .apply()
 
-            // Lanjut ke MainActivity (atau ke halaman lain)
+            // Lanjut ke MainActivity
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }

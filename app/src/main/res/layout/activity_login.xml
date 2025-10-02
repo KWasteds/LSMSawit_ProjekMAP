@@ -1,62 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center"
-    android:background="@color/blue_500"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient">
 
     <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
+        android:id="@+id/cardLogin"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="12dp"
+        android:layout_margin="24dp"
+        app:cardCornerRadius="20dp"
         app:cardElevation="6dp"
-        android:padding="24dp">
+        android:background="@color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:orientation="vertical"
+            android:padding="24dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/etEmail"
-                android:hint="@string/hint_email"
-                android:inputType="textEmailAddress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <EditText
-                android:id="@+id/etPassword"
-                android:hint="@string/hint_password"
-                android:inputType="textPassword"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"/>
-
-            <CheckBox
-                android:id="@+id/cbRemember"
-                android:text="@string/remember_me"
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"/>
+                android:text="@string/login_title"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:layout_marginBottom="20dp"/>
 
-            <Button
-                android:id="@+id/btnLogin"
-                android:text="@string/btn_login"
+            <!-- Username -->
+            <EditText
+                android:id="@+id/etUsername"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:backgroundTint="@color/blue_700"/>
+                android:hint="@string/hint_username"
+                android:backgroundTint="@color/black"
+                android:inputType="text"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Password -->
+            <EditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_password"
+                android:backgroundTint="@color/black"
+                android:inputType="textPassword"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Forgot Password -->
+            <TextView
+                android:id="@+id/tvForgotPassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/forgot_password"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:layout_gravity="end"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- Button Login -->
+            <Button
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="@string/btn_login"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                android:background="@drawable/bg_button_gradient"/>
+
+            <!-- Or Sign Up -->
+            <TextView
+                android:id="@+id/tvOrSignup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/signup_text"
+                android:textSize="12sp"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp"/>
 
             <TextView
                 android:id="@+id/tvRegister"
-                android:text="@string/txt_register_now"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/blue_700"
-                android:layout_marginTop="12dp"/>
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:text="Belum punya akun? Daftar"
+                android:textColor="#000000"
+                android:textSize="14sp"/>
+
+            <!-- Sign Up Button -->
+            <TextView
+                android:id="@+id/tvSignup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_signup"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"/>
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

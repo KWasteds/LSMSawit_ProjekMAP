@@ -1,5 +1,8 @@
 <resources>
+    <!-- App Info -->
     <string name="app_name">LSMSawit_ProjekMAP</string>
+
+    <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
@@ -7,20 +10,27 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
+    <!-- Menu -->
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
 
-    <string name="hint_email">Enter your email</string>
-    <string name="hint_password">Enter your password</string>
-    <string name="remember_me">Remember me</string>
-    <string name="btn_login">Login Now</string>
-    <string name="txt_register_now">Don’t have an account? Sign up now</string>
-    <string name="btn_register">Register Now</string>
-    <string name="hint_name">Enter your name</string>
-    <string name="hint_confirm_password">Confirm password</string>
-    <string name="accept_terms">I accept all terms &amp; conditions</string>
-
-    <string name="register_title">Registration</string>
+    <!-- Login Screen -->
+    <string name="login_title">Login</string>
+    <string name="hint_username">Type your username</string>
+    <string name="hint_password">Type your password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="btn_login">LOGIN</string>
+    <string name="signup_text">Or Sign Up Using</string>
+    <string name="btn_signup">SIGN UP</string>
+    <string name="register_now">Don’t have an account? Register</string>
     <string name="login_now">Already have an account? Login now</string>
+
+    <!-- Register Screen -->
+    <string name="register_title">Register</string>
+    <string name="hint_name">Type your full name</string>
+    <string name="hint_email">Type your email address</string>
+    <string name="hint_password_register">Create your password</string>
+    <string name="accept_terms">I accept the Terms &amp; Conditions</string>
+    <string name="btn_register">REGISTER</string>
 </resources>
