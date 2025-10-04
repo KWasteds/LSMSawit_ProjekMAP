@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "126609799219",
+    "project_id": "lsmsawit-projekmap",
+    "storage_bucket": "lsmsawit-projekmap.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:126609799219:android:fe47307bfe8aa3157e8b46",
+        "android_client_info": {
+          "package_name": "com.example.lsmsawit_projekmap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHG3A-9QASsFSj7dsT9fzZDqB8oxd4FHg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
