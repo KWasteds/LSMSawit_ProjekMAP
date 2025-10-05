@@ -14,12 +14,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LSMSawit_ProjekMAP">
 
-        <!-- Halaman login -->
-        <activity android:name=".ui.auth.LoginActivity" />
+        <!-- Halaman Login -->
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar.Fullscreen"
+            android:exported="false" />
 
-        <!-- Halaman register -->
+        <!-- Halaman Register -->
         <activity
             android:name=".ui.auth.RegisterActivity"
+            android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar.Fullscreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,6 +36,5 @@
             android:name=".MainActivity"
             android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar" />
     </application>
-
 
 </manifest>
