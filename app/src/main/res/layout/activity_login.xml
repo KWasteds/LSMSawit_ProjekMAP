@@ -43,7 +43,7 @@
                 android:id="@+id/etUsername"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/hint_username"
+                android:hint="@string/hint_email_login"
                 android:backgroundTint="@color/black"
                 android:inputType="text"
                 android:layout_marginBottom="16dp"/>

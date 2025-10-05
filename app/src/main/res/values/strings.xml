@@ -17,7 +17,7 @@
 
     <!-- Login Screen -->
     <string name="login_title">Login</string>
-    <string name="hint_username">Type your username</string>
+    <string name="hint_email_login">Type your username</string>
     <string name="hint_password">Type your password</string>
     <string name="forgot_password">Forgot password?</string>
     <string name="btn_login">LOGIN</string>
