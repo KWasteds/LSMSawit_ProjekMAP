@@ -9,6 +9,9 @@ import com.example.lsmsawit_projekmap.MainActivity
 import com.example.lsmsawit_projekmap.databinding.ActivityRegisterBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import android.widget.ArrayAdapter
+import com.example.lsmsawit_projekmap.R
+
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -28,56 +31,55 @@ class RegisterActivity : AppCompatActivity() {
             val name = binding.etName.text.toString().trim()
             val email = binding.etEmail.text.toString().trim()
             val pass = binding.etPassword.text.toString()
+            val address = binding.etAddress.text.toString().trim()
+            val contact = binding.etContact.text.toString().trim()
 
-            // Validasi
-            if (name.isEmpty()) {
-                binding.etName.error = "Nama wajib diisi"
-                return@setOnClickListener
-            }
-            if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                binding.etEmail.error = "Email tidak valid"
-                return@setOnClickListener
-            }
-            if (pass.length < 6) {
-                binding.etPassword.error = "Password minimal 6 karakter"
-                return@setOnClickListener
-            }
-            if (!binding.cbTerms.isChecked) {
-                Toast.makeText(this, "Silakan setuju syarat & ketentuan", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            if (name.isEmpty()) { binding.etName.error = "Nama wajib diisi"; return@setOnClickListener }
+            if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) { binding.etEmail.error = "Email tidak valid"; return@setOnClickListener }
+            if (address.isEmpty()) { binding.etAddress.error = "Alamat wajib diisi"; return@setOnClickListener }
+            if (contact.isEmpty()) { binding.etContact.error = "Nomor kontak wajib diisi"; return@setOnClickListener }
+            if (pass.length < 6) { binding.etPassword.error = "Password minimal 6 karakter"; return@setOnClickListener }
+            if (!binding.cbTerms.isChecked) { Toast.makeText(this, "Silakan setuju syarat & ketentuan", Toast.LENGTH_SHORT).show(); return@setOnClickListener }
 
-            registerUser(name, email, pass)
+            registerUser(name, email, pass, address, contact)
         }
 
         binding.tvLogin.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
+
+        // Setup AutoComplete Kota
+        val cities = resources.getStringArray(R.array.indonesia_cities)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, cities)
+        binding.etCity.setAdapter(adapter)
+        binding.etCity.threshold = 1 // mulai filter setelah ketik 1 huruf
     }
 
-    private fun registerUser(name: String, email: String, pass: String) {
+    private fun registerUser(name: String, email: String, pass: String, address: String, contact: String) {
         auth.createUserWithEmailAndPassword(email, pass)
             .addOnSuccessListener {
                 val uid = auth.currentUser?.uid ?: return@addOnSuccessListener
+                val city = binding.etCity.text.toString().trim()
 
                 val user = hashMapOf(
                     "name" to name,
                     "email" to email,
-                    "role" to "petani" // Default role
+                    "address" to address,
+                    "contact" to contact,
+                    "city" to city,
+                    "role" to "petani"
                 )
 
                 db.collection("users").document(uid).set(user)
                     .addOnSuccessListener {
-                        Toast.makeText(this, "Registrasi berhasil! (Firestore OK)", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Registrasi berhasil!", Toast.LENGTH_SHORT).show()
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(this, "Gagal menyimpan data: ${e.message}", Toast.LENGTH_LONG).show()
-                        e.printStackTrace()
                     }
 
-
-                // Pindah ke LoginActivity TANPA tergantung Firestore
+                // Langsung ke login
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
             }

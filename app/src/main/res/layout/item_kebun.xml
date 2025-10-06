@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="6dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvNamaKebun"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nama Kebun"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvIdKebun"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvNamaKebun"
+            android:layout_marginTop="4dp"
+            android:text="ID: PT-KLT-01-A-0101"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvLokasi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvIdKebun"
+            android:layout_marginTop="4dp"
+            android:text="Lokasi: -6.2341,106.5567"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvInfoTambahan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvLokasi"
+            android:layout_marginTop="6dp"
+            android:text="Luas: 2.5 ha • Tanam: 2010"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="13sp" />
+
+        <ImageView
+            android:id="@+id/btnEdit"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_alignParentEnd="true"
+            android:contentDescription="Edit"
+            android:src="@android:drawable/ic_menu_edit"
+            app:tint="?android:attr/textColorSecondary" />
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

@@ -67,4 +67,7 @@ dependencies {
     // The versions are managed by the BoM
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore.ktx)
+
+    // GPS Location
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 }

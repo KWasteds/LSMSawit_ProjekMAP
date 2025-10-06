@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <EditText
+            android:id="@+id/etNamaKebun"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:hint="Nama Kebun"
+            android:inputType="textCapWords" />
+
+        <EditText
+            android:id="@+id/etIdKebun"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:hint="ID Kebun (contoh: PT-KLT-01-A-0101)"
+            android:inputType="textCapCharacters" />
+
+        <EditText
+            android:id="@+id/etLuas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:hint="Luas Lahan (hektar)"
+            android:inputType="numberDecimal" />
+
+        <EditText
+            android:id="@+id/etTahunTanam"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:hint="Tahun Tanam"
+            android:inputType="number"
+            android:maxLength="4" />
+
+        <Button
+            android:id="@+id/btnSimpan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Simpan" />
+
+    </LinearLayout>
+
+</ScrollView>

@@ -58,6 +58,36 @@
                 android:inputType="textEmailAddress"
                 android:layout_marginBottom="16dp"/>
 
+            <!-- City / Kota -->
+            <AutoCompleteTextView
+                android:id="@+id/etCity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Kota / Wilayah"
+                android:backgroundTint="@color/black"
+                android:inputType="text"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Address -->
+            <EditText
+                android:id="@+id/etAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Alamat"
+                android:backgroundTint="@color/black"
+                android:inputType="text"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Contact -->
+            <EditText
+                android:id="@+id/etContact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nomor Kontak"
+                android:backgroundTint="@color/black"
+                android:inputType="text"
+                android:layout_marginBottom="16dp"/>
+
             <!-- Password -->
             <EditText
                 android:id="@+id/etPassword"
