@@ -8,8 +8,6 @@
     android:layout_margin="8dp"
     app:cardCornerRadius="7dp"
     app:cardElevation="5dp"
-    android:clickable="true"
-    android:focusable="true"
     android:foreground="?attr/selectableItemBackground">
 
     <LinearLayout
@@ -87,6 +85,8 @@
                 android:padding="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Edit"
+                android:clickable="true"
+                android:focusable="true"
                 android:src="@android:drawable/ic_menu_edit"
                 app:tint="?android:attr/textColorSecondary" />
         </LinearLayout>

@@ -17,12 +17,10 @@ import com.example.lsmsawit_projekmap.model.Kebun
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-
 class HomeFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: KebunAdapter
-    // Jadikan dataList sebagai val karena list-nya sendiri tidak akan di-assign ulang, hanya isinya yang diubah
     private val dataList = mutableListOf<Kebun>()
 
     private lateinit var layoutEmpty: LinearLayout
@@ -64,18 +62,12 @@ class HomeFragment : Fragment() {
 
     // Fungsi terpisah untuk setup RecyclerView agar onCreateView lebih rapi
     private fun setupRecyclerView() {
-        adapter = KebunAdapter(dataList,
-            onItemClick = { kebun ->
-                // Klik card -> buka form edit (pakai arguments)
-                val bs = FormIsiDataKebun.newInstance(
-                    kebun.idKebun,
-                    kebun.namaKebun,
-                    kebun.lokasi,
-                    kebun.luas,
-                    kebun.tahunTanam
-                )
-                bs.show(parentFragmentManager, "FormKebun")
-            },
+        adapter = KebunAdapter(
+            dataList,
+            // beri onItemClick sebagai no-op supaya card klik tidak melakukan edit
+            onItemClick = { /* no-op: klik area card tidak melakukan apa-apa */ },
+
+            // hanya handle edit ketika ikon pensil diklik
             onEditClick = { kebun ->
                 val bs = FormIsiDataKebun.newInstance(
                     kebun.idKebun,
@@ -87,6 +79,7 @@ class HomeFragment : Fragment() {
                 bs.show(parentFragmentManager, "FormKebun")
             }
         )
+
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
     }
@@ -129,7 +122,7 @@ class HomeFragment : Fragment() {
                     recyclerView.visibility = View.VISIBLE
                 }
 
-                // PERBAIKAN UTAMA: Beri tahu adapter bahwa data telah berubah
+                // Beri tahu adapter bahwa data telah berubah
                 adapter.notifyDataSetChanged()
                 Log.d("HomeFragment", "Data berhasil dimuat, jumlah item: ${dataList.size}")
             }
