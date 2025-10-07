@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- judul -->
         <TextView
             android:id="@+id/tvTitleForm"
             android:layout_width="wrap_content"
@@ -19,6 +20,7 @@
             android:textStyle="bold"
             android:layout_marginBottom="12dp"/>
 
+        <!-- input nama kebun -->
         <EditText
             android:id="@+id/etNamaKebun"
             android:layout_width="match_parent"
@@ -27,6 +29,7 @@
             android:inputType="textPersonName"
             android:layout_marginBottom="8dp"/>
 
+        <!-- input id -->
         <EditText
             android:id="@+id/etIdKebun"
             android:layout_width="match_parent"
@@ -35,6 +38,7 @@
             android:inputType="text"
             android:layout_marginBottom="8dp"/>
 
+        <!-- lokasi + tombol ambil lokasi -->
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -46,7 +50,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:hint="Lokasi (lat,lng) atau kosong untuk isi manual"
+                android:hint="Lokasi (lat,lng)"
                 android:inputType="text"
                 android:layout_marginEnd="8dp"/>
 
@@ -57,6 +61,7 @@
                 android:text="📍 Ambil Lokasi"/>
         </LinearLayout>
 
+        <!-- luas -->
         <EditText
             android:id="@+id/etLuas"
             android:layout_width="match_parent"
@@ -65,6 +70,7 @@
             android:inputType="numberDecimal"
             android:layout_marginBottom="8dp"/>
 
+        <!-- tahun tanam -->
         <EditText
             android:id="@+id/etTahunTanam"
             android:layout_width="match_parent"
@@ -73,6 +79,31 @@
             android:inputType="number"
             android:layout_marginBottom="12dp"/>
 
+        <!-- ✨ Tambahan: pilih gambar -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Foto Kebun"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp"/>
+
+        <ImageView
+            android:id="@+id/imgPreview"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:background="@android:color/darker_gray"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btnInsertImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🖼️ Pilih Gambar dari Galeri"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- tombol simpan -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -94,7 +125,6 @@
                 android:layout_marginStart="8dp"/>
         </LinearLayout>
 
-        <!-- Tombol hapus hanya muncul jika mode edit -->
         <Button
             android:id="@+id/btnHapus"
             android:layout_width="match_parent"
@@ -102,6 +132,5 @@
             android:text="Hapus Kebun"
             android:layout_marginTop="12dp"
             android:visibility="gone"/>
-
     </LinearLayout>
 </ScrollView>

@@ -70,4 +70,8 @@ dependencies {
 
     // GPS Location
     implementation("com.google.android.gms:play-services-location:21.0.1")
+
+    //buatmasukin images
+    implementation("androidx.activity:activity-ktx:1.9.0")
+    implementation("androidx.fragment:fragment-ktx:1.7.1")
 }
