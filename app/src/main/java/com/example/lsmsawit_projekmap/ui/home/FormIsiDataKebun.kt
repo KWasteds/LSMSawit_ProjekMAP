@@ -23,6 +23,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import java.util.Locale
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import org.json.JSONObject
+import android.net.Uri
+import java.io.IOException
+import android.util.Log
 
 class FormIsiDataKebun : BottomSheetDialogFragment() {
 
@@ -180,12 +186,14 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             return
         }
 
-        // 🔹 langsung simpan URI lokal (tanpa upload)
-        val imageUriString = selectedImageUri?.toString() ?: ""
-
-        saveKebunData(uid, idK, nama, lokasiTxt, luas, tahun, imageUriString)
+        // 🔹 Jika user memilih gambar, upload ke Cloudinary dulu
+        if (selectedImageUri != null) {
+            uploadToCloudinaryAndSave(uid, idK, nama, lokasiTxt, luas, tahun, selectedImageUri!!)
+        } else {
+            // 🔹 Jika tidak ada gambar, langsung simpan data Firestore dengan imageUrl kosong
+            saveKebunData(uid, idK, nama, lokasiTxt, luas, tahun, "")
+        }
     }
-
 
     private fun deleteKebun(id: String) {
         setSavingState(true)
@@ -291,7 +299,7 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             "luas" to luas,
             "tahunTanam" to tahun,
             "createdAt" to FieldValue.serverTimestamp(),
-            "imageUri" to imageUrl // 🔹 simpan URI lokal di sini
+            "imageUri" to imageUrl // simpan URI lokal di sini
         )
 
         db.collection("kebun").document(idK)
@@ -307,4 +315,74 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
                 setSavingState(false)
             }
     }
+
+    private fun uploadToCloudinaryAndSave(
+        uid: String,
+        idK: String,
+        nama: String,
+        lokasiTxt: String?,
+        luas: Double,
+        tahun: Int,
+        uri: Uri
+    ) {
+        val cloudName = "dw5jofoyu"        // ganti sesuai Cloudinary kamu
+        val uploadPreset = "fotokebun"     // ganti sesuai Cloudinary kamu
+        val uploadUrl = "https://api.cloudinary.com/v1_1/$cloudName/image/upload"
+
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        val imageBytes = inputStream?.readBytes()
+        inputStream?.close()
+
+        if (imageBytes == null) {
+            Toast.makeText(requireContext(), "Gagal membaca gambar", Toast.LENGTH_SHORT).show()
+            setSavingState(false)
+            return
+        }
+
+        val requestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("file", "kebun_$idK.jpg",
+                RequestBody.create("image/*".toMediaTypeOrNull(), imageBytes))
+            .addFormDataPart("upload_preset", uploadPreset)
+            .build()
+
+        val request = Request.Builder()
+            .url(uploadUrl)
+            .post(requestBody)
+            .build()
+
+        val client = OkHttpClient()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                requireActivity().runOnUiThread {
+                    Toast.makeText(requireContext(), "Upload gagal: ${e.message}", Toast.LENGTH_SHORT).show()
+                    setSavingState(false)
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseText = response.body?.string() ?: ""
+                Log.e("CloudinaryUpload", "Response code: ${response.code}, body: $responseText")
+
+                if (response.isSuccessful) {
+                    val json = JSONObject(responseText)
+                    val imageUrl = json.getString("secure_url")
+
+                    requireActivity().runOnUiThread {
+                        saveKebunData(uid, idK, nama, lokasiTxt, luas, tahun, imageUrl)
+                    }
+                } else {
+                    requireActivity().runOnUiThread {
+                        Toast.makeText(requireContext(),
+                            "Upload ke Cloudinary gagal (${response.code})",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        setSavingState(false)
+                    }
+                }
+            }
+        })
+    }
+
 }

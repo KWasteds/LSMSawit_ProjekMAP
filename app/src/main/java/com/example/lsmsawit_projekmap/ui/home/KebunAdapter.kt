@@ -44,7 +44,7 @@ class KebunAdapter(
         if (!k.imageUri.isNullOrEmpty()) {
             try {
                 Glide.with(holder.itemView.context)
-                    .load(Uri.parse(k.imageUri))
+                    .load(k.imageUri)
                     .placeholder(R.drawable.placeholder)
                     .into(holder.itemView.findViewById(R.id.imgKebun))
             } catch (e: Exception) {

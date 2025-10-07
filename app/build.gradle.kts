@@ -69,6 +69,7 @@ dependencies {
     // The versions are managed by the BoM
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore.ktx)
+    implementation("com.google.firebase:firebase-storage-ktx")
 
     // GPS Location
     implementation("com.google.android.gms:play-services-location:21.0.1")
@@ -77,5 +78,6 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.9.0")
     implementation("androidx.fragment:fragment-ktx:1.7.1")
 
-    implementation("com.google.firebase:firebase-storage-ktx")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("org.json:json:20240303")
 }
