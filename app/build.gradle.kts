@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
+    id("kotlin-kapt") // <-- Add this line
 }
 
 android {
@@ -57,7 +58,8 @@ dependencies {
 
     // Glide & CardView
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+    // Use 'kapt' instead of 'annotationProcessor' for Kotlin projects
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
     implementation("androidx.cardview:cardview:1.0.0")
 
     implementation(platform(libs.firebase.bom))
@@ -74,4 +76,6 @@ dependencies {
     //buatmasukin images
     implementation("androidx.activity:activity-ktx:1.9.0")
     implementation("androidx.fragment:fragment-ktx:1.7.1")
+
+    implementation("com.google.firebase:firebase-storage-ktx")
 }

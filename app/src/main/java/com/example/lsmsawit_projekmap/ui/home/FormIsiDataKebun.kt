@@ -180,33 +180,12 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             return
         }
 
-        val dataMap = hashMapOf<String, Any?>(
-            "userId" to uid,
-            "idKebun" to idK,
-            "namaKebun" to nama,
-            "lokasi" to if (lokasiTxt.isNotEmpty()) lokasiTxt else null,
-            "luas" to luas,
-            "tahunTanam" to tahun,
-            "createdAt" to FieldValue.serverTimestamp(),
-            "imageUri" to (selectedImageUri?.toString() ?: "")
-        )
+        // 🔹 langsung simpan URI lokal (tanpa upload)
+        val imageUriString = selectedImageUri?.toString() ?: ""
 
-        db.collection("kebun").document(idK)
-            .set(dataMap)
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), if (isEditMode) "Kebun diperbarui" else "Kebun tersimpan", Toast.LENGTH_SHORT).show()
-                setSavingState(false)
-
-                // Tambahan: kirim sinyal bahwa data kebun berubah
-                setFragmentResult("kebun_changed", bundleOf("changed" to true))
-
-                dismiss()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Gagal menyimpan: ${e.message}", Toast.LENGTH_LONG).show()
-                setSavingState(false)
-            }
+        saveKebunData(uid, idK, nama, lokasiTxt, luas, tahun, imageUriString)
     }
+
 
     private fun deleteKebun(id: String) {
         setSavingState(true)
@@ -268,5 +247,64 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
+    }
+
+    private fun uploadImageAndSave(
+        uid: String,
+        idK: String,
+        nama: String,
+        lokasiTxt: String?,
+        luas: Double,
+        tahun: Int,
+        uri: android.net.Uri
+    ) {
+        val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference
+        val imageRef = storageRef.child("kebun_images/$idK.jpg")
+
+        imageRef.putFile(uri)
+            .addOnSuccessListener {
+                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    // Setelah upload sukses, simpan data Firestore dengan URL download
+                    saveKebunData(uid, idK, nama, lokasiTxt, luas, tahun, downloadUri.toString())
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Upload gambar gagal: ${e.message}", Toast.LENGTH_LONG).show()
+                setSavingState(false)
+            }
+    }
+
+    private fun saveKebunData(
+        uid: String,
+        idK: String,
+        nama: String,
+        lokasiTxt: String?,
+        luas: Double,
+        tahun: Int,
+        imageUrl: String
+    ) {
+        val dataMap = hashMapOf(
+            "userId" to uid,
+            "idKebun" to idK,
+            "namaKebun" to nama,
+            "lokasi" to (lokasiTxt ?: ""),
+            "luas" to luas,
+            "tahunTanam" to tahun,
+            "createdAt" to FieldValue.serverTimestamp(),
+            "imageUri" to imageUrl // 🔹 simpan URI lokal di sini
+        )
+
+        db.collection("kebun").document(idK)
+            .set(dataMap)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), if (isEditMode) "Kebun diperbarui" else "Kebun tersimpan", Toast.LENGTH_SHORT).show()
+                setSavingState(false)
+                setFragmentResult("kebun_changed", bundleOf("changed" to true))
+                dismiss()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Gagal menyimpan: ${e.message}", Toast.LENGTH_LONG).show()
+                setSavingState(false)
+            }
     }
 }

@@ -6,8 +6,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.lsmsawit_projekmap.R
 import com.example.lsmsawit_projekmap.model.Kebun
+import android.net.Uri
+
 
 class KebunAdapter(
     private var items: MutableList<Kebun>,
@@ -16,6 +19,7 @@ class KebunAdapter(
 ) : RecyclerView.Adapter<KebunAdapter.VH>() {
 
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
+        val imgKebun: ImageView = view.findViewById(R.id.imgKebun)
         val tvNama: TextView = view.findViewById(R.id.tvNamaKebun)
         val tvId: TextView = view.findViewById(R.id.tvIdKebun)
         val tvLokasi: TextView = view.findViewById(R.id.tvLokasi)
@@ -36,9 +40,25 @@ class KebunAdapter(
         holder.tvLokasi.text = "Lokasi: ${k.lokasi}"
         holder.tvInfo.text = "Luas: ${k.luas} ha • Tanam: ${k.tahunTanam}"
 
+        // 🔹 tampilkan gambar lokal (jika ada)
+        if (!k.imageUri.isNullOrEmpty()) {
+            try {
+                Glide.with(holder.itemView.context)
+                    .load(Uri.parse(k.imageUri))
+                    .placeholder(R.drawable.placeholder)
+                    .into(holder.itemView.findViewById(R.id.imgKebun))
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        } else {
+            holder.itemView.findViewById<ImageView>(R.id.imgKebun)
+                .setImageResource(R.drawable.placeholder)
+        }
+
         holder.root.setOnClickListener { onItemClick(k) }
         holder.btnEdit.setOnClickListener { onEditClick(k) }
     }
+
 
     override fun getItemCount(): Int = items.size
 

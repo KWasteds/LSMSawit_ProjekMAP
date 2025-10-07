@@ -17,6 +17,7 @@ import com.example.lsmsawit_projekmap.model.Kebun
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
+
 class HomeFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
@@ -64,17 +65,14 @@ class HomeFragment : Fragment() {
     private fun setupRecyclerView() {
         adapter = KebunAdapter(
             dataList,
-            // beri onItemClick sebagai no-op supaya card klik tidak melakukan edit
-            onItemClick = { /* no-op: klik area card tidak melakukan apa-apa */ },
-
-            // hanya handle edit ketika ikon pensil diklik
+            onItemClick = { /* no-op */ },
             onEditClick = { kebun ->
                 val bs = FormIsiDataKebun.newInstance(
-                    kebun.idKebun,
-                    kebun.namaKebun,
-                    kebun.lokasi,
-                    kebun.luas,
-                    kebun.tahunTanam
+                    idKebun = kebun.idKebun,
+                    namaKebun = kebun.namaKebun,
+                    lokasi = kebun.lokasi,
+                    luas = kebun.luas,
+                    tahunTanam = kebun.tahunTanam
                 )
                 bs.show(parentFragmentManager, "FormKebun")
             }
@@ -83,6 +81,7 @@ class HomeFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
     }
+
 
     // Public function to reload data (dipanggil setelah simpan/hapus)
     fun reloadKebun() {
@@ -108,7 +107,8 @@ class HomeFragment : Fragment() {
                         namaKebun = doc.getString("namaKebun") ?: "",
                         lokasi = doc.getString("lokasi") ?: "",
                         luas = doc.getDouble("luas") ?: 0.0,
-                        tahunTanam = doc.getLong("tahunTanam")?.toInt() ?: 0
+                        tahunTanam = doc.getLong("tahunTanam")?.toInt() ?: 0,
+                        imageUri = doc.getString("imageUri") ?: "" // 🔹 tambahkan ini
                     )
                     dataList.add(k)
                 }
