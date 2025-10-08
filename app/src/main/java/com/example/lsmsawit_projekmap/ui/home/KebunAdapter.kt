@@ -9,62 +9,53 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.lsmsawit_projekmap.R
 import com.example.lsmsawit_projekmap.model.Kebun
-import android.net.Uri
-
 
 class KebunAdapter(
-    private var items: MutableList<Kebun>,
+    private var list: MutableList<Kebun>,
     private val onItemClick: (Kebun) -> Unit,
     private val onEditClick: (Kebun) -> Unit
-) : RecyclerView.Adapter<KebunAdapter.VH>() {
+) : RecyclerView.Adapter<KebunAdapter.KebunViewHolder>() {
 
-    inner class VH(view: View) : RecyclerView.ViewHolder(view) {
-        val imgKebun: ImageView = view.findViewById(R.id.imgKebun)
-        val tvNama: TextView = view.findViewById(R.id.tvNamaKebun)
-        val tvId: TextView = view.findViewById(R.id.tvIdKebun)
-        val tvLokasi: TextView = view.findViewById(R.id.tvLokasi)
-        val tvInfo: TextView = view.findViewById(R.id.tvInfoTambahan)
-        val btnEdit: ImageView = view.findViewById(R.id.btnEdit)
-        val root: View = view.findViewById(R.id.cardRoot)
+    inner class KebunViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val imgKebun: ImageView = itemView.findViewById(R.id.imgKebun)
+        val tvNamaKebun: TextView = itemView.findViewById(R.id.tvNamaKebun)
+        val tvIdKebun: TextView = itemView.findViewById(R.id.tvIdKebun)
+        val tvLokasi: TextView = itemView.findViewById(R.id.tvLokasi)
+        val tvInfoTambahan: TextView = itemView.findViewById(R.id.tvInfoTambahan)
+        val btnEdit: ImageView = itemView.findViewById(R.id.btnEdit)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.item_kebun, parent, false)
-        return VH(v)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): KebunViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_kebun, parent, false)
+        return KebunViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: VH, position: Int) {
-        val k = items[position]
-        holder.tvNama.text = k.namaKebun
-        holder.tvId.text = "ID: ${k.idKebun}"
-        holder.tvLokasi.text = "Lokasi: ${k.lokasi}"
-        holder.tvInfo.text = "Luas: ${k.luas} ha • Tanam: ${k.tahunTanam}"
+    override fun onBindViewHolder(holder: KebunViewHolder, position: Int) {
+        val kebun = list[position]
 
-        // 🔹 tampilkan gambar lokal (jika ada)
-        if (!k.imageUri.isNullOrEmpty()) {
-            try {
-                Glide.with(holder.itemView.context)
-                    .load(k.imageUri)
-                    .placeholder(R.drawable.placeholder)
-                    .into(holder.itemView.findViewById(R.id.imgKebun))
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        } else {
-            holder.itemView.findViewById<ImageView>(R.id.imgKebun)
-                .setImageResource(R.drawable.placeholder)
-        }
+        holder.tvNamaKebun.text = kebun.namaKebun
+        holder.tvIdKebun.text = "ID: ${kebun.idKebun}"
+        holder.tvLokasi.text = "Lokasi: ${kebun.lokasi}"
+        holder.tvInfoTambahan.text = "Luas: ${kebun.luas} ha • Tanam: ${kebun.tahunTanam}"
 
-        holder.root.setOnClickListener { onItemClick(k) }
-        holder.btnEdit.setOnClickListener { onEditClick(k) }
+        // Load gambar dari Cloudinary (jika ada)
+        Glide.with(holder.itemView.context)
+            .load(kebun.imageUri)
+            .placeholder(R.drawable.placeholder_image)
+            .error(R.drawable.placeholder_image)
+            .centerCrop()
+            .into(holder.imgKebun)
+
+        holder.itemView.setOnClickListener { onItemClick(kebun) }
+        holder.btnEdit.setOnClickListener { onEditClick(kebun) }
     }
 
-
-    override fun getItemCount(): Int = items.size
+    override fun getItemCount(): Int = list.size
 
     fun updateList(newList: List<Kebun>) {
-        items.clear()
-        items.addAll(newList)
+        list.clear()
+        list.addAll(newList)
         notifyDataSetChanged()
     }
 }

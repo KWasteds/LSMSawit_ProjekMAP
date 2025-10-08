@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         // === Tombol Logout di bawah Drawer ===
         val logoutButton = navView.findViewById<Button>(R.id.btnLogout)
         logoutButton.setOnClickListener {
-            Toast.makeText(this, "Logout berhasil", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Logout berhasil",     Toast.LENGTH_SHORT).show()
 
             // Contoh aksi logout: pindah ke LoginActivity
             val intent = Intent(this, LoginActivity::class.java)
@@ -83,5 +83,4 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp()
     }
-
 }

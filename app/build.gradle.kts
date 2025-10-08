@@ -74,10 +74,13 @@ dependencies {
     // GPS Location
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
-    //buatmasukin images
+    // buatmasukin images
     implementation("androidx.activity:activity-ktx:1.9.0")
     implementation("androidx.fragment:fragment-ktx:1.7.1")
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.json:json:20240303")
+
+    // Refresh
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 }
