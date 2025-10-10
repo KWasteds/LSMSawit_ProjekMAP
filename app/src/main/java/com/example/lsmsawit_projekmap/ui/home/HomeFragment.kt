@@ -144,12 +144,13 @@ class HomeFragment : Fragment() {
                         lokasi = data["lokasi"]?.toString() ?: "",
                         luas = (data["luas"] as? Number)?.toDouble() ?: 0.0,
                         tahunTanam = (data["tahunTanam"] as? Number)?.toInt() ?: 0,
-                        imageUri = data["imageUri"]?.toString() ?: ""
+                        imageUri = data["imageUri"]?.toString() ?: "",
+                        fotoTimestamp = data["fotoTimestamp"]?.toString()
                     )
                     dataList.add(kebun)
                 }
 
-                Log.d("HomeFragment", "Dapat ${dataList.size} dokumen dari Firestore")
+                //Log.d("HomeFragment", "Dapat ${dataList.size} dokumen dari Firestore")
 
                 if (dataList.isEmpty()) {
                     layoutEmpty.visibility = View.VISIBLE

@@ -29,6 +29,13 @@ import org.json.JSONObject
 import android.net.Uri
 import java.io.IOException
 import android.util.Log
+import java.io.File
+import android.os.Environment
+import androidx.core.content.FileProvider
+import android.database.Cursor
+import java.text.SimpleDateFormat
+import java.util.Date
+import android.provider.MediaStore
 
 class FormIsiDataKebun : BottomSheetDialogFragment() {
 
@@ -44,6 +51,8 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
     private lateinit var btnHapus: Button
     private lateinit var btnInsertImage: Button
     private lateinit var imagePreview: ImageView
+    private lateinit var btnTakePhoto: Button
+    private lateinit var tvTimestamp: TextView
 
     // Firebase
     private val db = FirebaseFirestore.getInstance()
@@ -55,8 +64,27 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
     private var oldIdKebun: String? = null
 
     // Image
+    private var photoUri: Uri? = null
     private lateinit var imageLauncher: ActivityResultLauncher<Intent>
     private var selectedImageUri: android.net.Uri? = null
+    private lateinit var cameraLauncher: ActivityResultLauncher<Uri>
+    private val cameraPermission = arrayOf(Manifest.permission.CAMERA)
+    private var photoTimestamp: String? = null
+
+
+
+    private fun createImageUri(): Uri? {
+        val context = requireContext()
+        val image = File(
+            context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+            "kebun_photo_${System.currentTimeMillis()}.jpg"
+        )
+        return FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.provider",
+            image
+        )
+    }
 
     companion object {
         private const val REQ_LOCATION = 1001
@@ -83,6 +111,27 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
         }
     }
 
+    private fun launchCamera() {
+        val newPhotoUri = createImageUri()
+        // Lakukan pengecekan null di sini
+        if (newPhotoUri != null) {
+            photoUri = newPhotoUri
+            cameraLauncher.launch(newPhotoUri)
+        } else {
+            Toast.makeText(requireContext(), "Gagal membuat file gambar", Toast.LENGTH_SHORT).show()
+        }
+    }
+    private val requestCameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Jika user memberi izin, baru buka kamera
+            launchCamera()
+        } else {
+            Toast.makeText(requireContext(), "Izin kamera diperlukan", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -100,6 +149,8 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
         btnHapus = v.findViewById(R.id.btnHapus)
         btnInsertImage = v.findViewById(R.id.btnInsertImage)
         imagePreview = v.findViewById(R.id.imgPreview)
+        btnTakePhoto = v.findViewById(R.id.btnTakePhoto)
+        tvTimestamp = v.findViewById(R.id.tvTimestamp)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
@@ -110,7 +161,24 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             if (result.resultCode == Activity.RESULT_OK && result.data != null) {
                 selectedImageUri = result.data!!.data
                 imagePreview.setImageURI(selectedImageUri)
-                Toast.makeText(requireContext(), "Gambar berhasil dimuat", Toast.LENGTH_SHORT).show()
+
+                selectedImageUri?.let { uri ->
+                    getTimestampFromUri(uri)
+                }
+            }
+        }
+
+        cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success) {
+                photoUri?.let { uri ->
+                    imagePreview.setImageURI(uri)
+                    selectedImageUri = uri
+
+                    val sdf = SimpleDateFormat("dd/MM/yyyy, HH:mm:ss", Locale.getDefault())
+                    val timestamp = sdf.format(Date())
+                    photoTimestamp = timestamp
+                    tvTimestamp.text = "Waktu foto: $timestamp"
+                }
             }
         }
 
@@ -151,7 +219,48 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             }
         }
 
+        btnTakePhoto = v.findViewById(R.id.btnTakePhoto)
+
+        btnTakePhoto.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.CAMERA
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                // Sudah diizinkan → langsung buka kamera
+                launchCamera()
+            } else {
+                // Minta izin dulu
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+
+
         return v
+    }
+
+    private fun getTimestampFromUri(uri: Uri) {
+        val projection = arrayOf(MediaStore.Images.Media.DATE_TAKEN)
+        val cursor: Cursor? = requireContext().contentResolver.query(uri, projection, null, null, null)
+
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val dateTakenIndex = it.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN)
+                if (dateTakenIndex != -1) {
+                    val dateTakenMillis = it.getLong(dateTakenIndex)
+                    val sdf = SimpleDateFormat("dd/MM/yyyy, HH:mm:ss", Locale.getDefault())
+                    val timestamp = sdf.format(Date(dateTakenMillis))
+                    photoTimestamp = timestamp
+                    tvTimestamp.text = "Waktu foto: $timestamp"
+                    return
+                }
+            }
+        }
+        // Jika gagal mendapatkan dari metadata, gunakan waktu saat ini
+        val sdf = SimpleDateFormat("dd/MM/yyyy, HH:mm:ss", Locale.getDefault())
+        val timestamp = sdf.format(Date())
+        photoTimestamp = timestamp
+        tvTimestamp.text = "Waktu foto: $timestamp"
     }
 
     private fun attemptSave() {
@@ -299,7 +408,8 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             "luas" to luas,
             "tahunTanam" to tahun,
             "createdAt" to FieldValue.serverTimestamp(),
-            "imageUri" to imageUrl // simpan URI lokal di sini
+            "imageUri" to imageUrl,
+            "fotoTimestamp" to photoTimestamp
         )
 
         db.collection("kebun").document(idK)
@@ -384,5 +494,6 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             }
         })
     }
+
 
 }

@@ -23,6 +23,7 @@ class KebunAdapter(
         val tvLokasi: TextView = itemView.findViewById(R.id.tvLokasi)
         val tvInfoTambahan: TextView = itemView.findViewById(R.id.tvInfoTambahan)
         val btnEdit: ImageView = itemView.findViewById(R.id.btnEdit)
+        val tvFotoTimestamp: TextView = itemView.findViewById(R.id.tvFotoTimestamp)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): KebunViewHolder {
@@ -38,6 +39,13 @@ class KebunAdapter(
         holder.tvIdKebun.text = "ID: ${kebun.idKebun}"
         holder.tvLokasi.text = "Lokasi: ${kebun.lokasi}"
         holder.tvInfoTambahan.text = "Luas: ${kebun.luas} ha • Tanam: ${kebun.tahunTanam}"
+
+        if (!kebun.fotoTimestamp.isNullOrEmpty()) {
+            holder.tvFotoTimestamp.visibility = View.VISIBLE
+            holder.tvFotoTimestamp.text = "Foto diambil: ${kebun.fotoTimestamp}"
+        } else {
+            holder.tvFotoTimestamp.visibility = View.GONE
+        }
 
         // Load gambar dari Cloudinary (jika ada)
         Glide.with(holder.itemView.context)

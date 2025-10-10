@@ -96,12 +96,30 @@
             android:background="@android:color/darker_gray"
             android:layout_marginBottom="8dp" />
 
+        <TextView
+            android:id="@+id/tvTimestamp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Waktu foto: -"
+            android:gravity="center_horizontal"
+            android:textSize="12sp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"/>
+
         <Button
             android:id="@+id/btnInsertImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="🖼️ Pilih Gambar dari Galeri"
             android:layout_marginBottom="16dp"/>
+
+        <Button
+            android:id="@+id/btnTakePhoto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📸 Ambil Foto dari Kamera"
+            android:layout_marginBottom="16dp"/>
+
 
         <!-- tombol simpan -->
         <LinearLayout

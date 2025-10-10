@@ -1,12 +1,11 @@
 package com.example.lsmsawit_projekmap.model
 
 data class Kebun(
-    var userId: String = "",
-    var idKebun: String = "",
-    var namaKebun: String = "",
-    var lokasi: String = "",
-    var luas: Double = 0.0,
-    var tahunTanam: Int = 0,
-    var imageUri: String = "" // tambahkan ini
+    val idKebun: String = "",
+    val namaKebun: String = "",
+    val lokasi: String = "",
+    val luas: Double = 0.0,
+    val tahunTanam: Int = 0,
+    val imageUri: String = "",
+    val fotoTimestamp: String? = null
 )
-
