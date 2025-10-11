@@ -1,97 +1,160 @@
 package com.example.lsmsawit_projekmap
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.widget.*
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.example.lsmsawit_projekmap.databinding.ActivityAccountSettingBinding
+import java.io.File
+import java.io.FileOutputStream
 
 class AccountSettingActivity : AppCompatActivity() {
 
-    private lateinit var profileImage: ImageView
-    private lateinit var editName: EditText
-    private lateinit var editEmail: EditText
-    private lateinit var editPhone: EditText
-    private lateinit var editAddress: EditText
-    private lateinit var btnSave: Button
-
+    private lateinit var binding: ActivityAccountSettingBinding
     private var selectedImageUri: Uri? = null
-    private val PICK_IMAGE_REQUEST = 100
+
+    // Launcher untuk memilih gambar dari galeri
+    private val pickImageLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                data?.data?.let { uri ->
+                    selectedImageUri = uri
+                    // Tampilkan gambar yang baru dipilih
+                    Glide.with(this)
+                        .load(uri)
+                        .transform(CircleCrop())
+                        .into(binding.profileImage) // ID disesuaikan dengan XML
+                }
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_account_setting)
+        // Gunakan ViewBinding yang dihasilkan dari activity_account_setting.xml
+        binding = ActivityAccountSettingBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        profileImage = findViewById(R.id.profileImage)
-        editName = findViewById(R.id.editName)
-        editEmail = findViewById(R.id.editEmail)
-        editPhone = findViewById(R.id.editPhone)
-        editAddress = findViewById(R.id.editAddress)
-        btnSave = findViewById(R.id.btnSave)
+        // Muat data yang sudah ada dari SharedPreferences saat activity dibuka
+        loadUserData()
 
-        val sharedPref = getSharedPreferences("UserData", MODE_PRIVATE)
-        editName.setText(sharedPref.getString("name", "Android Studio"))
-        editEmail.setText(sharedPref.getString("email", "android.studio@android.com"))
-
-        val photoUri = sharedPref.getString("photoUri", null)
-        if (photoUri != null) {
-            Glide.with(this)
-                .load(Uri.parse(photoUri))
-                .circleCrop()
-                .into(profileImage)
-        }
-
-        profileImage.setOnClickListener {
+        // Listener untuk memilih gambar baru
+        binding.profileImage.setOnClickListener { // ID disesuaikan dengan XML
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
-            startActivityForResult(intent, PICK_IMAGE_REQUEST)
+            pickImageLauncher.launch(intent)
         }
 
-        btnSave.setOnClickListener {
-            val name = editName.text.toString()
-            val email = editEmail.text.toString()
-            val phone = editPhone.text.toString()
-            val address = editAddress.text.toString()
-
-            val editor = sharedPref.edit()
-            editor.putString("name", name)
-            editor.putString("email", email)
-            editor.putString("phone", phone)
-            editor.putString("address", address)
-            selectedImageUri?.let { uri ->
-                editor.putString("photoUri", uri.toString())
-            }
-            editor.apply()
-
-            val resultIntent = Intent()
-            resultIntent.putExtra("name", name)
-            resultIntent.putExtra("email", email)
-            resultIntent.putExtra("phone", phone)
-            resultIntent.putExtra("address", address)
-            if (selectedImageUri != null) {
-                resultIntent.putExtra("photoUri", selectedImageUri.toString())
-            } else if (photoUri != null) {
-                resultIntent.putExtra("photoUri", photoUri)
-            }
-            setResult(Activity.RESULT_OK, resultIntent)
-
-            Toast.makeText(this, "Perubahan disimpan", Toast.LENGTH_SHORT).show()
-            finish()
+        // Listener untuk tombol simpan
+        binding.btnSave.setOnClickListener {
+            saveProfile()
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
-            val uri = data.data
-            selectedImageUri = uri
+    /**
+     * Memuat semua data pengguna dari SharedPreferences dan menampilkannya di EditText/ImageView
+     */
+    private fun loadUserData() {
+        val sharedPref = getSharedPreferences("UserData", Context.MODE_PRIVATE)
+        val name = sharedPref.getString("name", "")
+        val email = sharedPref.getString("email", "")
+        val city = sharedPref.getString("city", "")
+        val address = sharedPref.getString("address", "")
+        val phone = sharedPref.getString("phone", "")
+        val photoUriString = sharedPref.getString("photoUri", null)
+
+        binding.editName.setText(name) // ID disesuaikan dengan XML
+        binding.editEmail.setText(email) // ID disesuaikan dengan XML
+        binding.editCity.setText(city)
+        binding.editAddress.setText(address)
+        binding.editPhone.setText(phone)
+
+        if (photoUriString != null) {
+            val photoUri = Uri.parse(photoUriString)
             Glide.with(this)
-                .load(uri)
+                .load(photoUri)
                 .transform(CircleCrop())
-                .into(profileImage)
+                .placeholder(R.mipmap.ic_launcher_round) // Gambar default
+                .into(binding.profileImage) // ID disesuaikan dengan XML
+        }
+    }
+
+    /**
+     * Menyimpan semua data dari EditText ke SharedPreferences dan
+     * mengirim kembali data yang diperlukan (nama, email, foto) ke MainActivity.
+     */
+    private fun saveProfile() {
+        val name = binding.editName.text.toString()
+        val email = binding.editEmail.text.toString()
+        val city = binding.editCity.text.toString()
+        val address = binding.editAddress.text.toString()
+        val phone = binding.editPhone.text.toString()
+
+        if (name.isBlank() || email.isBlank()) {
+            Toast.makeText(this, "Nama dan Email tidak boleh kosong", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Siapkan SharedPreferences untuk menyimpan data
+        val sharedPref = getSharedPreferences("UserData", Context.MODE_PRIVATE).edit()
+
+        sharedPref.putString("name", name)
+        sharedPref.putString("email", email)
+        sharedPref.putString("city", city)
+        sharedPref.putString("address", address)
+        sharedPref.putString("phone", phone)
+
+        val resultIntent = Intent()
+        resultIntent.putExtra("name", name)
+        resultIntent.putExtra("email", email)
+
+        // Jika ada gambar baru yang dipilih, simpan secara lokal dan dapatkan URI barunya
+        if (selectedImageUri != null) {
+            val localImageUri = saveImageToInternalStorage(selectedImageUri!!)
+            if (localImageUri != null) {
+                val uriString = localImageUri.toString()
+                resultIntent.putExtra("photoUri", uriString)
+                sharedPref.putString("photoUri", uriString)
+            }
+        } else {
+            // Jika tidak ada gambar baru, kirim kembali URI yang lama
+            val oldPhotoUri = getSharedPreferences("UserData", Context.MODE_PRIVATE).getString("photoUri", null)
+            resultIntent.putExtra("photoUri", oldPhotoUri)
+        }
+
+        sharedPref.apply() // Terapkan semua perubahan ke SharedPreferences
+
+        setResult(Activity.RESULT_OK, resultIntent)
+        Toast.makeText(this, "Profil berhasil disimpan", Toast.LENGTH_SHORT).show()
+        finish() // Kembali ke MainActivity
+    }
+
+    /**
+     * Menyalin file gambar dari URI galeri ke penyimpanan internal aplikasi
+     * dan mengembalikan URI file lokal yang baru.
+     */
+    private fun saveImageToInternalStorage(uri: Uri): Uri? {
+        try {
+            val inputStream = contentResolver.openInputStream(uri)
+            val file = File(filesDir, "profile_image.jpg") // Nama file yang konsisten
+            val outputStream = FileOutputStream(file)
+
+            inputStream?.copyTo(outputStream)
+
+            inputStream?.close()
+            outputStream.close()
+
+            return Uri.fromFile(file)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Gagal menyimpan gambar", Toast.LENGTH_SHORT).show()
+            return null
         }
     }
 }

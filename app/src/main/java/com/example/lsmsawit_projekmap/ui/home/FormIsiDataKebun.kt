@@ -409,7 +409,8 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             "tahunTanam" to tahun,
             "createdAt" to FieldValue.serverTimestamp(),
             "imageUri" to imageUrl,
-            "fotoTimestamp" to photoTimestamp
+            "fotoTimestamp" to photoTimestamp,
+            "status" to "pending"
         )
 
         db.collection("kebun").document(idK)

@@ -27,22 +27,23 @@
             android:contentDescription="Foto Kebun" />
 
         <!-- Indikator Status -->
+
+        <!-- Bagian teks info kebun -->
         <TextView
             android:id="@+id/tvStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="start"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_status_pending"
             android:paddingHorizontal="10dp"
             android:paddingVertical="4dp"
             android:text="Pending"
-            android:textStyle="bold"
-            android:textSize="13sp"
             android:textColor="@android:color/white"
-            android:background="@drawable/bg_status_pending"
-            android:layout_gravity="start" />
+            android:textSize="13sp"
+            android:textStyle="bold" />
 
-        <!-- Bagian teks info kebun -->
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"

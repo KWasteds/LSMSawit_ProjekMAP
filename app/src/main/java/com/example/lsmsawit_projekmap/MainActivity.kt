@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     // ✅ Listener untuk menerima hasil dari AccountSettingActivity
+    // Listener untuk menerima hasil dari AccountSettingActivity
     private val accountSettingLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK && result.data != null) {
@@ -39,13 +40,9 @@ class MainActivity : AppCompatActivity() {
                 val email = data?.getStringExtra("email")
                 val photoUri = data?.getStringExtra("photoUri")
 
-                Toast.makeText(
-                    this,
-                    "Profil diperbarui: $name ($email)",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this, "Profil diperbarui", Toast.LENGTH_SHORT).show()
 
-                // Simpan ke SharedPreferences agar tampil di sidebar
+                // Simpan data baru ke SharedPreferences
                 val sharedPref = getSharedPreferences("UserData", MODE_PRIVATE)
                 with(sharedPref.edit()) {
                     putString("name", name)
@@ -54,6 +51,7 @@ class MainActivity : AppCompatActivity() {
                     apply()
                 }
 
+                // Perbarui header navigasi
                 updateNavHeader()
             }
         }
@@ -67,7 +65,6 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.appBarMain.toolbar)
 
-        // Floating action button → buka form kebun
         binding.appBarMain.fab.setOnClickListener {
             val formFragment = FormIsiDataKebun()
             formFragment.show(supportFragmentManager, "FormIsiDataKebunTag")
@@ -129,13 +126,11 @@ class MainActivity : AppCompatActivity() {
     // ✅ Fungsi untuk update header user (nama, email, foto)
     private fun updateNavHeader() {
         val sharedPref = getSharedPreferences("UserData", MODE_PRIVATE)
-        val name = sharedPref.getString("name", "Android Studio")
-        val email = sharedPref.getString("email", "android.studio@android.com")
-        val photoUri = sharedPref.getString("photoUri", null)
+        val name = sharedPref.getString("name", "Nama Pengguna")
+        val email = sharedPref.getString("email", "email@contoh.com")
+        val photoUriString = sharedPref.getString("photoUri", null)
 
-        val navigationView = findViewById<NavigationView>(R.id.nav_view)
-        val headerView = navigationView.getHeaderView(0)
-
+        val headerView = binding.navView.getHeaderView(0)
         val nameText = headerView.findViewById<TextView>(R.id.textViewName)
         val emailText = headerView.findViewById<TextView>(R.id.textViewEmail)
         val imageView = headerView.findViewById<ImageView>(R.id.imageView)
@@ -143,12 +138,15 @@ class MainActivity : AppCompatActivity() {
         nameText.text = name
         emailText.text = email
 
-        if (photoUri != null) {
+        if (photoUriString != null) {
+            // Muat gambar dari URI lokal yang tersimpan
             Glide.with(this)
-                .load(Uri.parse(photoUri))
+                .load(Uri.parse(photoUriString))
                 .transform(CircleCrop())
+                .placeholder(R.drawable.ic_account_circle) // Gambar default
                 .into(imageView)
         } else {
+            // Jika tidak ada URI, tampilkan gambar default
             imageView.setImageResource(R.drawable.ic_account_circle)
         }
     }
