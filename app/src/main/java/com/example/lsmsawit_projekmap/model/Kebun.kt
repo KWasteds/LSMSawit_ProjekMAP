@@ -7,5 +7,6 @@ data class Kebun(
     val luas: Double = 0.0,
     val tahunTanam: Int = 0,
     val imageUri: String = "",
-    val fotoTimestamp: String? = null
+    val fotoTimestamp: String? = null,
+    val status: String = "Pending" // ➕ default status baru
 )

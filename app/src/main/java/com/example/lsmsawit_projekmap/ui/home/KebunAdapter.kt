@@ -22,8 +22,9 @@ class KebunAdapter(
         val tvIdKebun: TextView = itemView.findViewById(R.id.tvIdKebun)
         val tvLokasi: TextView = itemView.findViewById(R.id.tvLokasi)
         val tvInfoTambahan: TextView = itemView.findViewById(R.id.tvInfoTambahan)
-        val btnEdit: ImageView = itemView.findViewById(R.id.btnEdit)
         val tvFotoTimestamp: TextView = itemView.findViewById(R.id.tvFotoTimestamp)
+        val btnEdit: ImageView = itemView.findViewById(R.id.btnEdit)
+        val tvStatus: TextView = itemView.findViewById(R.id.tvStatus) // ✅ indikator status
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): KebunViewHolder {
@@ -47,7 +48,16 @@ class KebunAdapter(
             holder.tvFotoTimestamp.visibility = View.GONE
         }
 
-        // Load gambar dari Cloudinary (jika ada)
+        // ✅ Tampilkan status dengan warna berbeda
+        holder.tvStatus.text = kebun.status
+        when (kebun.status.lowercase()) {
+            "pending" -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
+            "diterima" -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_diterima)
+            "ditolak", "revisi" -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_ditolak)
+            else -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
+        }
+
+        // Load gambar dari URI (misalnya Cloudinary)
         Glide.with(holder.itemView.context)
             .load(kebun.imageUri)
             .placeholder(R.drawable.placeholder_image)
