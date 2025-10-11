@@ -1,35 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="176dp"
-    android:background="#1C352D"
+    android:layout_height="180dp"
+    android:background="?attr/colorPrimary"
     android:gravity="bottom"
     android:orientation="vertical"
     android:padding="16dp"
-    android:theme="@style/ThemeOverlay.MaterialComponents.Dark">
+    android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="72dp"
         android:layout_height="72dp"
-        android:paddingTop="0dp"
-        android:src="@mipmap/ic_launcher_round"
-        android:contentDescription="@string/nav_header_desc" />
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/ic_account_circle"
+        android:contentDescription="User Image"
+        android:background="@drawable/circle_background"
+        android:scaleType="centerCrop" />
 
     <TextView
         android:id="@+id/textViewName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="8dp"
-        android:text="Android Studio"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:text="Nama Pengguna"
+        android:textStyle="bold"
+        android:textSize="18sp"
         android:textColor="@android:color/white" />
 
     <TextView
         android:id="@+id/textViewEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="android.studio@android.com"
+        android:text="email@contoh.com"
         android:textColor="@android:color/white" />
 
 </LinearLayout>

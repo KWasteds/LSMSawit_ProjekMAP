@@ -42,6 +42,14 @@
             android:name=".MainActivity"
             android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar" />
 
+        <!-- ✅ Tambahkan activity AccountSettingActivity di sini -->
+        <activity
+            android:name=".AccountSettingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar" />
+
+        <!-- ✅ Selesai -->
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
