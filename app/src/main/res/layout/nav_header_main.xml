@@ -8,29 +8,35 @@
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
+    <!-- Foto profil pengguna -->
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
         android:src="@drawable/ic_account_circle"
-        android:contentDescription="User Image"
         android:background="@drawable/circle_background"
+        android:contentDescription="Foto Profil"
         android:scaleType="centerCrop" />
 
+    <!-- Nama pengguna -->
     <TextView
         android:id="@+id/textViewName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:text="Nama Pengguna"
         android:textStyle="bold"
         android:textSize="18sp"
         android:textColor="@android:color/white" />
 
+    <!-- Email pengguna -->
     <TextView
         android:id="@+id/textViewEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:text="email@contoh.com"
         android:textColor="@android:color/white" />
 

@@ -25,7 +25,6 @@ class AccountSettingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_account_setting)
 
-        // 🔧 Inisialisasi View
         profileImage = findViewById(R.id.profileImage)
         editName = findViewById(R.id.editName)
         editEmail = findViewById(R.id.editEmail)
@@ -33,35 +32,30 @@ class AccountSettingActivity : AppCompatActivity() {
         editAddress = findViewById(R.id.editAddress)
         btnSave = findViewById(R.id.btnSave)
 
-        // 🔹 Ambil data dari SharedPreferences
         val sharedPref = getSharedPreferences("UserData", MODE_PRIVATE)
         editName.setText(sharedPref.getString("name", "Android Studio"))
         editEmail.setText(sharedPref.getString("email", "android.studio@android.com"))
 
         val photoUri = sharedPref.getString("photoUri", null)
         if (photoUri != null) {
-            val uri = Uri.parse(photoUri)
             Glide.with(this)
-                .load(uri)
+                .load(Uri.parse(photoUri))
                 .circleCrop()
-                .into(profileImage) // ✅ sudah benar sekarang
+                .into(profileImage)
         }
 
-        // 📷 Klik gambar untuk memilih foto
         profileImage.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
             startActivityForResult(intent, PICK_IMAGE_REQUEST)
         }
 
-        // 💾 Tombol Simpan
         btnSave.setOnClickListener {
             val name = editName.text.toString()
             val email = editEmail.text.toString()
             val phone = editPhone.text.toString()
             val address = editAddress.text.toString()
 
-            // Simpan ke SharedPreferences
             val editor = sharedPref.edit()
             editor.putString("name", name)
             editor.putString("email", email)
@@ -72,12 +66,16 @@ class AccountSettingActivity : AppCompatActivity() {
             }
             editor.apply()
 
-            // Kirim hasil ke MainActivity
             val resultIntent = Intent()
             resultIntent.putExtra("name", name)
             resultIntent.putExtra("email", email)
             resultIntent.putExtra("phone", phone)
             resultIntent.putExtra("address", address)
+            if (selectedImageUri != null) {
+                resultIntent.putExtra("photoUri", selectedImageUri.toString())
+            } else if (photoUri != null) {
+                resultIntent.putExtra("photoUri", photoUri)
+            }
             setResult(Activity.RESULT_OK, resultIntent)
 
             Toast.makeText(this, "Perubahan disimpan", Toast.LENGTH_SHORT).show()
@@ -85,7 +83,6 @@ class AccountSettingActivity : AppCompatActivity() {
         }
     }
 
-    // 🔄 Hasil pemilihan gambar dari galeri
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
@@ -93,7 +90,7 @@ class AccountSettingActivity : AppCompatActivity() {
             selectedImageUri = uri
             Glide.with(this)
                 .load(uri)
-                .transform(CircleCrop()) // 🔵 Gambar dibulatkan
+                .transform(CircleCrop())
                 .into(profileImage)
         }
     }

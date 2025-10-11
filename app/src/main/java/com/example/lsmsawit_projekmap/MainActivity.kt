@@ -17,6 +17,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.example.lsmsawit_projekmap.databinding.ActivityMainBinding
 import com.example.lsmsawit_projekmap.ui.auth.LoginActivity
 import com.example.lsmsawit_projekmap.ui.home.FormIsiDataKebun
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity() {
                 val data = result.data
                 val name = data?.getStringExtra("name")
                 val email = data?.getStringExtra("email")
+                val photoUri = data?.getStringExtra("photoUri")
 
                 Toast.makeText(
                     this,
@@ -42,12 +45,12 @@ class MainActivity : AppCompatActivity() {
                     Toast.LENGTH_LONG
                 ).show()
 
-                // Simpan sementara ke SharedPreferences agar tampil di sidebar
+                // Simpan ke SharedPreferences agar tampil di sidebar
                 val sharedPref = getSharedPreferences("UserData", MODE_PRIVATE)
                 with(sharedPref.edit()) {
                     putString("name", name)
                     putString("email", email)
-                    putString("photoUri", data?.getStringExtra("photoUri"))
+                    putString("photoUri", photoUri)
                     apply()
                 }
 
@@ -91,8 +94,6 @@ class MainActivity : AppCompatActivity() {
 
                 R.id.nav_account -> {
                     val intent = Intent(this, AccountSettingActivity::class.java)
-                    intent.putExtra("current_name", "Admin Sawit")
-                    intent.putExtra("current_email", "admin@sawit.id")
                     accountSettingLauncher.launch(intent)
                 }
             }
@@ -143,8 +144,18 @@ class MainActivity : AppCompatActivity() {
         emailText.text = email
 
         if (photoUri != null) {
-            val uri = Uri.parse(photoUri)
-            imageView.setImageURI(uri)
+            Glide.with(this)
+                .load(Uri.parse(photoUri))
+                .transform(CircleCrop())
+                .into(imageView)
+        } else {
+            imageView.setImageResource(R.drawable.ic_account_circle)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Reload header setiap kali MainActivity kembali aktif
+        updateNavHeader()
     }
 }
