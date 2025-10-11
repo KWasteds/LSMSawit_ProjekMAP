@@ -39,6 +39,24 @@ class LoginActivity : AppCompatActivity() {
             loginUser(email, pass)
         }
 
+        // ✅ Forgot Password
+        binding.tvForgotPassword.setOnClickListener {
+            val email = binding.etUsername.text.toString().trim()
+
+            if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                binding.etUsername.error = "Masukkan email yang valid terlebih dahulu"
+                return@setOnClickListener
+            }
+
+            auth.sendPasswordResetEmail(email)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Link reset password dikirim ke email.", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Gagal mengirim email: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
+
         // Pindah ke Register
         binding.tvRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))

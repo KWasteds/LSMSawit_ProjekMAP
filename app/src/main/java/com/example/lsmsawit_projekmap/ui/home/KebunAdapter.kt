@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.lsmsawit_projekmap.R
 import com.example.lsmsawit_projekmap.model.Kebun
+import android.content.Intent
+import com.example.lsmsawit_projekmap.MapsActivity
 
 class KebunAdapter(
     private var list: MutableList<Kebun>,
@@ -24,7 +26,8 @@ class KebunAdapter(
         val tvInfoTambahan: TextView = itemView.findViewById(R.id.tvInfoTambahan)
         val tvFotoTimestamp: TextView = itemView.findViewById(R.id.tvFotoTimestamp)
         val btnEdit: ImageView = itemView.findViewById(R.id.btnEdit)
-        val tvStatus: TextView = itemView.findViewById(R.id.tvStatus) // ✅ indikator status
+        val tvStatus: TextView = itemView.findViewById(R.id.tvStatus)
+        val btnLocation: ImageView = itemView.findViewById(R.id.btnLocation)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): KebunViewHolder {
@@ -35,6 +38,7 @@ class KebunAdapter(
 
     override fun onBindViewHolder(holder: KebunViewHolder, position: Int) {
         val kebun = list[position]
+
 
         holder.tvNamaKebun.text = kebun.namaKebun
         holder.tvIdKebun.text = "ID: ${kebun.idKebun}"
@@ -48,7 +52,7 @@ class KebunAdapter(
             holder.tvFotoTimestamp.visibility = View.GONE
         }
 
-        // ✅ Tampilkan status dengan warna berbeda
+        // ✅ Status
         holder.tvStatus.text = kebun.status
         when (kebun.status.lowercase()) {
             "pending" -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
@@ -57,7 +61,7 @@ class KebunAdapter(
             else -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
         }
 
-        // Load gambar dari URI (misalnya Cloudinary)
+        // ✅ Gambar
         Glide.with(holder.itemView.context)
             .load(kebun.imageUri)
             .placeholder(R.drawable.placeholder_image)
@@ -65,9 +69,20 @@ class KebunAdapter(
             .centerCrop()
             .into(holder.imgKebun)
 
+        // Klik seluruh item → edit
         holder.itemView.setOnClickListener { onItemClick(kebun) }
         holder.btnEdit.setOnClickListener { onEditClick(kebun) }
+
+        // ✅ Klik tombol lokasi
+        holder.btnLocation.setOnClickListener {
+            val context = holder.itemView.context
+            val intent = Intent(context, MapsActivity::class.java)
+            intent.putExtra("lokasi", kebun.lokasi) // Format: "lat,long"
+            intent.putExtra("namaKebun", kebun.namaKebun)
+            context.startActivity(intent)
+        }
     }
+
 
     override fun getItemCount(): Int = list.size
 

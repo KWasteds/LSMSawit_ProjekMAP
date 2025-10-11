@@ -23,6 +23,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LSMSawit_ProjekMAP">
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyC3lhOtq7JdAxxsvcymXGXjwcrAYtKdkTk" />
+
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar" />
+
         <activity
             android:name=".ui.auth.LoginActivity"
             android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar.Fullscreen"
@@ -38,17 +46,15 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".MainActivity"
-            android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar" />
-
         <!-- ✅ Tambahkan activity AccountSettingActivity di sini -->
         <activity
             android:name=".AccountSettingActivity"
             android:exported="false"
             android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar" />
 
-        <!-- ✅ Selesai -->
+        <activity
+            android:name=".MapsActivity"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

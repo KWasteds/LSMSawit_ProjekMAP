@@ -13,108 +13,124 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:layout_height="wrap_content">
 
-        <!-- Gambar Kebun -->
+        <!-- Gambar -->
         <ImageView
             android:id="@+id/imgKebun"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:scaleType="centerCrop"
-            android:adjustViewBounds="true"
             android:background="@android:color/darker_gray"
             android:contentDescription="Foto Kebun" />
 
-        <!-- Indikator Status -->
-
-        <!-- Bagian teks info kebun -->
-        <TextView
-            android:id="@+id/tvStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_status_pending"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="4dp"
-            android:text="Pending"
-            android:textColor="@android:color/white"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-
+        <!-- Bagian teks -->
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp">
+            android:padding="12dp">
 
-            <TextView
-                android:id="@+id/tvNamaKebun"
-                android:layout_width="wrap_content"
+            <!-- Nama & Status -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Nama Kebun"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:textColor="?android:attr/textColorPrimary" />
+                android:gravity="center_vertical">
 
+                <TextView
+                    android:id="@+id/tvNamaKebun"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Nama Kebun"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="?android:attr/textColorPrimary" />
+
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_status_pending"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:text="Pending"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- ID -->
             <TextView
                 android:id="@+id/tvIdKebun"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ID: PT-KLT-01-A-0101"
+                android:text="ID: ..."
                 android:textSize="14sp"
                 android:textColor="?android:attr/textColorSecondary"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="4dp" />
 
+            <!-- Lokasi -->
             <TextView
                 android:id="@+id/tvLokasi"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Lokasi: -6.2341, 106.5567"
-                android:textSize="13sp"
+                android:text="Lokasi: ..."
+                android:textSize="14sp"
                 android:textColor="?android:attr/textColorSecondary"
                 android:layout_marginTop="2dp" />
 
+            <!-- Info Tambahan -->
             <TextView
                 android:id="@+id/tvInfoTambahan"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Luas: 2.5 ha • Tanam: 2010"
+                android:text="Luas: ... ha • Tanam: ..."
                 android:textSize="13sp"
                 android:textColor="?android:attr/textColorSecondary"
                 android:layout_marginTop="4dp" />
 
+            <!-- Foto Timestamp -->
             <TextView
                 android:id="@+id/tvFotoTimestamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Foto diambil: -"
-                android:textSize="12sp"
+                android:text="Foto diambil: ..."
+                android:textSize="13sp"
                 android:textColor="?android:attr/textColorSecondary"
                 android:layout_marginTop="4dp"/>
-        </LinearLayout>
 
-        <!-- Baris tombol edit di pojok kanan -->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:gravity="end|center_vertical">
+            <!-- Tombol Lokasi & Edit -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:layout_marginTop="8dp">
 
-            <ImageView
-                android:id="@+id/btnEdit"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:padding="4dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Edit"
-                android:clickable="true"
-                android:focusable="true"
-                android:src="@android:drawable/ic_menu_edit"
-                app:tint="?android:attr/textColorSecondary" />
+                <ImageView
+                    android:id="@+id/btnLocation"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_location"
+                    android:contentDescription="Buka Lokasi"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:tint="#808080" />
+
+                <ImageView
+                    android:id="@+id/btnEdit"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:padding="6dp"
+                    android:layout_marginStart="6dp"
+                    android:src="@android:drawable/ic_menu_edit"
+                    android:contentDescription="Edit Kebun"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:tint="#808080" />
+            </LinearLayout>
+
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
