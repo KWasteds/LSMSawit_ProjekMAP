@@ -66,15 +66,19 @@ class HomeFragment : Fragment() {
         adapter = KebunAdapter(dataList,
             onItemClick = { kebun ->
                 val bs = FormIsiDataKebun.newInstance(
-                    kebun.idKebun, kebun.namaKebun, kebun.lokasi,
-                    kebun.luas, kebun.tahunTanam
+                    kebun.idKebun,
+                    kebun.namaKebun,
+                    kebun.lokasi,
+                    kebun.luas,
+                    kebun.tahunTanam,
+                    kebun.status
                 )
                 bs.show(parentFragmentManager, "FormKebun")
             },
             onEditClick = { kebun ->
                 val bs = FormIsiDataKebun.newInstance(
                     kebun.idKebun, kebun.namaKebun, kebun.lokasi,
-                    kebun.luas, kebun.tahunTanam
+                    kebun.luas, kebun.tahunTanam, kebun.status
                 )
                 bs.show(parentFragmentManager, "FormKebun")
             }
@@ -84,18 +88,7 @@ class HomeFragment : Fragment() {
         // Set the refresh listener on the class-level variable
         swipeRefreshLayout.setOnRefreshListener {
             reloadKebun()
-            // The isRefreshing flag will be set to false inside the reloadKebun() method
         }
-
-        // You have a second listener setup, which is redundant. You can remove it.
-        // The following block can be safely deleted as it does the same thing.
-        /*
-        val swipeRefresh = view.findViewById<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.swipeRefresh)
-        swipeRefresh.setOnRefreshListener {
-            reloadKebun()
-            swipeRefresh.isRefreshing = false
-        }
-        */
 
         reloadKebun() // Initial data load
         return view
@@ -112,7 +105,8 @@ class HomeFragment : Fragment() {
                     namaKebun = kebun.namaKebun,
                     lokasi = kebun.lokasi,
                     luas = kebun.luas,
-                    tahunTanam = kebun.tahunTanam
+                    tahunTanam = kebun.tahunTanam,
+                    status = kebun.status
                 )
                 bs.show(parentFragmentManager, "FormKebun")
             }
@@ -122,53 +116,31 @@ class HomeFragment : Fragment() {
         recyclerView.adapter = adapter
     }
 
-
     // Public function to reload data (dipanggil setelah simpan/hapus)
     private fun reloadKebun() {
-        // FIX: Changed swipeRefresh to swipeRefreshLayout
         swipeRefreshLayout.isRefreshing = true
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val userId = auth.currentUser?.uid ?: return
 
-        val db = FirebaseFirestore.getInstance()
         db.collection("kebun")
             .whereEqualTo("userId", userId)
             .get()
             .addOnSuccessListener { result ->
-                val dataList = mutableListOf<Kebun>()
-                for (document in result) {
-                    val data = document.data
-                    Log.d("HomeFragment", "Data kebun: $data")
-                    val kebun = Kebun(
-                        namaKebun = data["namaKebun"]?.toString() ?: "",
-                        idKebun = data["idKebun"]?.toString() ?: "",
-                        lokasi = data["lokasi"]?.toString() ?: "",
-                        luas = (data["luas"] as? Number)?.toDouble() ?: 0.0,
-                        tahunTanam = (data["tahunTanam"] as? Number)?.toInt() ?: 0,
-                        imageUri = data["imageUri"]?.toString() ?: "",
-                        fotoTimestamp = data["fotoTimestamp"]?.toString()
-                    )
-                    dataList.add(kebun)
-                }
+                // Gunakan toObjects agar lebih bersih dan aman
+                val kebunList = result.toObjects(Kebun::class.java)
 
-                //Log.d("HomeFragment", "Dapat ${dataList.size} dokumen dari Firestore")
-
-                if (dataList.isEmpty()) {
+                if (kebunList.isEmpty()) {
                     layoutEmpty.visibility = View.VISIBLE
                     recyclerView.visibility = View.GONE
                 } else {
                     layoutEmpty.visibility = View.GONE
                     recyclerView.visibility = View.VISIBLE
-                    adapter.updateList(dataList)
-                    // You can remove notifyDataSetChanged() if updateList() handles it
-                    // adapter.notifyDataSetChanged()
-                    Log.d("HomeFragment", "RecyclerView updated: ${dataList.size} items ✅")
+                    // Kirim list yang sudah lengkap ke adapter
+                    adapter.updateList(kebunList)
+                    Log.d("HomeFragment", "RecyclerView updated: ${kebunList.size} items ✅")
                 }
-
-                // FIX: Changed swipeRefresh to swipeRefreshLayout
                 swipeRefreshLayout.isRefreshing = false
             }
             .addOnFailureListener { e ->
-                // FIX: Changed swipeRefresh to swipeRefreshLayout
                 swipeRefreshLayout.isRefreshing = false
                 layoutEmpty.visibility = View.VISIBLE
                 recyclerView.visibility = View.GONE

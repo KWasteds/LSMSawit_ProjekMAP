@@ -5,13 +5,14 @@ import java.util.Date
 
 data class Notifikasi(
     val id: String = "",
-    val userId: String = "",         // ID Petani yang akan menerima notifikasi
+    val userId: String = "",
     val kebunId: String = "",
     val kebunName: String = "",
-    val message: String = "",        // Pesan notifikasi (misal: "Kebun Anda Disetujui")
-    val note: String? = null,        // Catatan revisi dari admin
-    val adminId: String = "",        // ID Admin yang melakukan verifikasi
-    var isRead: Boolean = false,
+    val message: String = "",
+    val note: String? = null,
+    val adminId: String = "",
+    var read: Boolean = false,
+
     @ServerTimestamp
-    val timestamp: Date? = null      // Timestamp kapan notifikasi dibuat
+    val timestamp: Date? = null
 )

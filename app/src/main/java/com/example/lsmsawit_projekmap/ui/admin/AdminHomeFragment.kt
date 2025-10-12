@@ -124,7 +124,7 @@ class AdminHomeFragment : Fragment(), VerifikasiDialogListener {
             message = message,
             note = note,
             adminId = adminUid,
-            isRead = false
+            read = false
         )
         batch.set(notifRef, newNotification)
 

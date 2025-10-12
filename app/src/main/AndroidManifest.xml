@@ -75,6 +75,10 @@
             android:name=".MapsActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".NotifikasiActivity"
+            android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar" />
+
         <!-- ✅ FileProvider (penting untuk kamera & upload foto) -->
         <provider
             android:name="androidx.core.content.FileProvider"

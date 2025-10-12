@@ -55,7 +55,7 @@ class KebunAdminAdapter(
         // Atur warna status
         when (kebun.status.lowercase()) {
             "pending" -> holder.status.setBackgroundResource(R.drawable.bg_status_pending)
-            "revisi" -> holder.status.setBackgroundResource(R.drawable.bg_status_ditolak)
+            "revisi", "rejected" -> holder.status.setBackgroundResource(R.drawable.bg_status_ditolak)
             "approved", "accepted", "diterima" -> holder.status.setBackgroundResource(R.drawable.bg_status_diterima)
             else -> holder.status.setBackgroundResource(R.drawable.bg_status_pending)
         }

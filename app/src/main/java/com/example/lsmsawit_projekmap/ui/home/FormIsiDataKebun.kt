@@ -36,6 +36,7 @@ import android.database.Cursor
 import java.text.SimpleDateFormat
 import java.util.Date
 import android.provider.MediaStore
+import kotlin.math.log
 
 class FormIsiDataKebun : BottomSheetDialogFragment() {
 
@@ -91,21 +92,23 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
         private val ID_REGEX = Regex("^[A-Z0-9-]{5,30}$")
         private val LOC_REGEX = Regex("^\\s*-?\\d+(\\.\\d+)?\\s*,\\s*-?\\d+(\\.\\d+)?\\s*$")
 
-        // Fungsi instance baru dengan parameter
         fun newInstance(
             idKebun: String?,
             namaKebun: String?,
             lokasi: String?,
             luas: Double?,
-            tahunTanam: Int?
+            tahunTanam: Int?,
+            status: String? // TAMBAHKAN INI
         ): FormIsiDataKebun {
             val fragment = FormIsiDataKebun()
-            val args = Bundle()
-            args.putString("idKebun", idKebun)
-            args.putString("namaKebun", namaKebun)
-            args.putString("lokasi", lokasi)
-            if (luas != null) args.putDouble("luas", luas)
-            if (tahunTanam != null) args.putInt("tahunTanam", tahunTanam)
+            val args = Bundle().apply {
+                putString("idKebun", idKebun)
+                putString("namaKebun", namaKebun)
+                putString("lokasi", lokasi)
+                luas?.let { putDouble("luas", it) }
+                tahunTanam?.let { putInt("tahunTanam", it) }
+                putString("status", status)
+            }
             fragment.arguments = args
             return fragment
         }
@@ -191,16 +194,31 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
         // Mode edit jika ada argumen
         arguments?.let { args ->
             val id = args.getString("idKebun")
+
             if (!id.isNullOrEmpty()) {
                 isEditMode = true
                 oldIdKebun = id
+
+                // Isi semua field dengan data yang ada
                 etId.setText(id)
                 etNama.setText(args.getString("namaKebun"))
                 etLokasi.setText(args.getString("lokasi") ?: "")
                 etLuas.setText(args.getDouble("luas").toString())
                 etTahun.setText(args.getInt("tahunTanam").toString())
+
                 btnHapus.visibility = View.VISIBLE
                 btnSimpan.text = "Update"
+            }
+
+            val status = args.getString("status")
+            val isEditable = when (status?.lowercase()) {
+                "pending", "revisi" -> true
+                else -> false
+            }
+
+            // Jika form ini dalam mode edit TAPI statusnya tidak lagi bisa diedit
+            if (isEditMode && !isEditable) {
+                disableForm() // Maka kunci formnya
             }
         }
 
@@ -320,6 +338,19 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
                 Toast.makeText(requireContext(), "Gagal hapus: ${e.message}", Toast.LENGTH_LONG).show()
                 setSavingState(false)
             }
+    }
+
+    private fun disableForm() {
+        etNama.isEnabled = false
+        etId.isEnabled = false
+        etLokasi.isEnabled = false
+        etLuas.isEnabled = false
+        etTahun.isEnabled = false
+        btnAmbilLokasi.isEnabled = false
+        btnInsertImage.isEnabled = false
+        btnTakePhoto.isEnabled = false
+        btnSimpan.visibility = View.GONE
+        btnHapus.visibility = View.GONE
     }
 
     private fun setSavingState(isSaving: Boolean) {
@@ -495,6 +526,5 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             }
         })
     }
-
 
 }

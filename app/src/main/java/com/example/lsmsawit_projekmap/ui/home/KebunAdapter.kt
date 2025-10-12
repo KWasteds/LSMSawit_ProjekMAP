@@ -56,9 +56,36 @@ class KebunAdapter(
         holder.tvStatus.text = kebun.status
         when (kebun.status.lowercase()) {
             "pending" -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
-            "diterima" -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_diterima)
-            "ditolak", "revisi" -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_ditolak)
+            "revisi" -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_ditolak)
+            "verifikasi1" -> {
+                holder.tvStatus.text = "Diproses" // Tampilkan "Diproses" ke petani
+                holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending) // Buat drawable baru jika perlu
+            }
+            "approved" -> { // Jika ada status final "Approved"
+                holder.tvStatus.text = "Disetujui"
+                holder.tvStatus.setBackgroundResource(R.drawable.bg_status_diterima)
+            }
+            "rejected" -> {
+                holder.tvStatus.text = "Ditolak"
+                holder.tvStatus.setBackgroundResource(R.drawable.bg_status_ditolak)
+            }
             else -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
+        }
+
+        val isEditable = when (kebun.status.lowercase()) {
+            "pending", "revisi" -> true // Hanya bisa diedit jika statusnya Pending atau Revisi
+            else -> false
+        }
+
+        if (isEditable) {
+            holder.btnEdit.visibility = View.VISIBLE
+            // Klik seluruh item dan tombol edit sama-sama membuka form edit
+            holder.itemView.setOnClickListener { onEditClick(kebun) }
+            holder.btnEdit.setOnClickListener { onEditClick(kebun) }
+        } else {
+            holder.btnEdit.visibility = View.GONE
+            // Jika tidak bisa diedit, klik item tidak melakukan apa-apa (atau bisa tampilkan detail)
+            holder.itemView.setOnClickListener(null) // Nonaktifkan klik pada item
         }
 
         // ✅ Gambar
