@@ -2,6 +2,7 @@ package com.example.lsmsawit_projekmap.model
 
 data class Kebun(
     val idKebun: String = "",
+    val userId: String = "", // <-- TAMBAHKAN FIELD INI
     val namaKebun: String = "",
     val lokasi: String = "",
     val luas: Double = 0.0,

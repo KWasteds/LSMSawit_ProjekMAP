@@ -79,14 +79,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:ignore="MissingConstraints">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Selamat datang di Dashboard Admin"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_gravity="center" />
             </FrameLayout>
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

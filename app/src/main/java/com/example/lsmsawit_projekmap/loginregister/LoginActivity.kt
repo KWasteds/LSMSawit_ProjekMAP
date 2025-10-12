@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.lsmsawit_projekmap.MainActivity
 import com.example.lsmsawit_projekmap.databinding.ActivityLoginBinding
+import com.example.lsmsawit_projekmap.ui.admin.AdminActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
@@ -70,7 +71,7 @@ class LoginActivity : AppCompatActivity() {
 
                 if (email.equals("tangerangsawit@gmail.com", ignoreCase = true)) {
                     // 🔹 Jika email admin, buka halaman admin
-                    val intent = Intent(this, com.example.lsmsawit_projekmap.ui.admin.AdminActivity::class.java)
+                    val intent = Intent(this, AdminActivity::class.java)
                     startActivity(intent)
                 } else {
                     // 🔹 Jika bukan admin, buka halaman user biasa

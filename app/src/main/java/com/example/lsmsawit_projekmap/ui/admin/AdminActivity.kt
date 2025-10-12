@@ -21,11 +21,14 @@ import com.example.lsmsawit_projekmap.ui.auth.LoginActivity
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import android.text.TextWatcher
+import android.text.Editable
 
 class AdminActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
+    private lateinit var drawerLayout: DrawerLayout // Jadikan properti kelas
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +40,7 @@ class AdminActivity : AppCompatActivity() {
         val toolbar: Toolbar = findViewById(R.id.toolbar_admin)
         setSupportActionBar(toolbar)
 
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout_admin)
+        drawerLayout = findViewById(R.id.drawer_layout_admin)
         val navView: NavigationView = findViewById(R.id.nav_view_admin)
 
         val toggle = ActionBarDrawerToggle(
@@ -49,6 +52,15 @@ class AdminActivity : AppCompatActivity() {
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
+
+        // <-- TAMBAHKAN BLOK KODE INI -->
+        // Ini adalah bagian kunci untuk memuat daftar kebun Anda
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.admin_content, AdminHomeFragment())
+                .commit()
+        }
+        // <-- BATAS PENAMBAHAN KODE -->
 
         // ✅ Tombol Logout di Drawer
         val logoutButton = navView.findViewById<Button>(R.id.btnLogout)
@@ -82,20 +94,28 @@ class AdminActivity : AppCompatActivity() {
         // ✅ Fitur Search Bar
         val searchField = findViewById<EditText>(R.id.searchField)
 
-        searchField.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                val query = searchField.text.toString().trim()
-                if (query.isNotEmpty()) {
-                    // TODO: filter/pencarian kebun sesuai kebutuhan
-                    Toast.makeText(this, "Cari: $query", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this, "Masukkan nama kebun terlebih dahulu", Toast.LENGTH_SHORT).show()
-                }
-                true
-            } else {
-                false
+        searchField.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Tidak perlu melakukan apa-apa di sini
             }
-        }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Tidak perlu melakukan apa-apa di sini
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                // Setelah teks berubah, panggil fungsi filter di fragment
+                val query = s.toString()
+
+                // Cari fragment yang sedang aktif
+                val fragment = supportFragmentManager.findFragmentById(R.id.admin_content)
+
+                // Pastikan fragment itu adalah AdminHomeFragment, lalu panggil fungsinya
+                if (fragment is AdminHomeFragment) {
+                    fragment.filterList(query)
+                }
+            }
+        })
     }
 
     override fun onResume() {
@@ -136,4 +156,6 @@ class AdminActivity : AppCompatActivity() {
                 Toast.makeText(this, "Gagal memuat profil admin", Toast.LENGTH_SHORT).show()
             }
     }
+
+
 }
