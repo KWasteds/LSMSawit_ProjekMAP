@@ -67,11 +67,22 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithEmailAndPassword(email, pass)
             .addOnSuccessListener {
                 Toast.makeText(this, "Login berhasil!", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
+
+                if (email.equals("tangerangsawit@gmail.com", ignoreCase = true)) {
+                    // 🔹 Jika email admin, buka halaman admin
+                    val intent = Intent(this, com.example.lsmsawit_projekmap.ui.admin.AdminActivity::class.java)
+                    startActivity(intent)
+                } else {
+                    // 🔹 Jika bukan admin, buka halaman user biasa
+                    val intent = Intent(this, com.example.lsmsawit_projekmap.MainActivity::class.java)
+                    startActivity(intent)
+                }
+
+                finish() // Supaya tidak bisa kembali ke login dengan tombol Back
             }
             .addOnFailureListener {
                 Toast.makeText(this, "Login gagal: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
 }
