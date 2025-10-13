@@ -34,7 +34,7 @@
         <!-- ✅ Kunci Google Maps -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyC3lhOtq7JdAxxsvcymXGXjwcrAYtKdkTk" />
+            android:value="${MAPS_API_KEY}" />
 
         <!-- ✅ Halaman utama user -->
         <activity

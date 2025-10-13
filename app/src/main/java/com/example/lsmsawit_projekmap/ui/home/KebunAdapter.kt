@@ -16,7 +16,6 @@ class KebunAdapter(
     private var list: MutableList<Kebun>,
     private val onItemClick: (Kebun) -> Unit,
     private val onEditClick: (Kebun) -> Unit,
-    // **PERUBAHAN 1: Tambah Listener baru**
     private val onStatusClick: (Kebun) -> Unit
 ) : RecyclerView.Adapter<KebunAdapter.KebunViewHolder>() {
 
@@ -78,9 +77,16 @@ class KebunAdapter(
             else -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
         }
 
-        // **PERUBAHAN 2: Listener klik untuk status**
-        holder.tvStatus.setOnClickListener {
-            onStatusClick(kebun)
+        if (kebun.status.equals("rejected", ignoreCase = true)) {
+            holder.tvStatus.isEnabled = false
+            holder.tvStatus.alpha = 0.5f // efek visual agar terlihat disabled
+            holder.tvStatus.setOnClickListener(null)
+        } else {
+            holder.tvStatus.isEnabled = true
+            holder.tvStatus.alpha = 1f
+            holder.tvStatus.setOnClickListener {
+                onStatusClick(kebun)
+            }
         }
 
         // --- Gambar kebun ---

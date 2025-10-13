@@ -4,7 +4,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
-    id("kotlin-kapt") // <-- Add this line
+    id("kotlin-kapt")
 }
 
 android {
@@ -25,8 +25,22 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"${localProperties.getProperty("cloudinary.cloud_name")}\"")
-        buildConfigField("String", "CLOUDINARY_UPLOAD_PRESET", "\"${localProperties.getProperty("cloudinary.upload_preset")}\"")
+
+        // Cloudinary
+        buildConfigField(
+            "String",
+            "CLOUDINARY_CLOUD_NAME",
+            "\"${localProperties.getProperty("cloudinary.cloud_name")}\""
+        )
+        buildConfigField(
+            "String",
+            "CLOUDINARY_UPLOAD_PRESET",
+            "\"${localProperties.getProperty("cloudinary.upload_preset")}\""
+        )
+
+        // ✅ Tambahkan ini untuk Google Maps API Key dari local.properties
+        val mapsApiKey = localProperties.getProperty("maps.api_key") ?: ""
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {
@@ -38,6 +52,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -52,7 +67,6 @@ android {
 }
 
 dependencies {
-
     // Default libraries
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -67,20 +81,18 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // Add this line for Google Maps
+    // Google Maps
     implementation("com.google.android.gms:play-services-maps:18.2.0")
 
     // Glide & CardView
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    // Use 'kapt' instead of 'annotationProcessor' for Kotlin projects
     kapt("com.github.bumptech.glide:compiler:4.16.0")
     implementation("androidx.cardview:cardview:1.0.0")
 
     implementation(platform(libs.firebase.bom))
     implementation("com.google.android.material:material:1.12.0")
 
-    // Add the dependencies for Firebase products you want to use
-    // The versions are managed by the BoM
+    // Firebase
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore.ktx)
     implementation("com.google.firebase:firebase-storage-ktx")
@@ -88,7 +100,7 @@ dependencies {
     // GPS Location
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
-    // buatmasukin images
+    // Activity, Fragment, Cloudinary
     implementation("androidx.activity:activity-ktx:1.9.0")
     implementation("androidx.fragment:fragment-ktx:1.7.1")
     implementation("com.cloudinary:cloudinary-android:2.4.0")
@@ -98,10 +110,4 @@ dependencies {
 
     // Refresh
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-
-    // Glide & CardView
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    kapt("com.github.bumptech.glide:compiler:4.16.0")
-    implementation("androidx.cardview:cardview:1.0.0")
 }
-
