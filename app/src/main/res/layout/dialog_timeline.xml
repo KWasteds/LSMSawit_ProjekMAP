@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Status Pemrosesan Kebun"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="?android:attr/textColorPrimary"
+        android:layout_marginBottom="16dp"/>
+
+    <LinearLayout
+        android:id="@+id/timelineContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvStepPending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pending"
+            android:textSize="14sp"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical" />
+
+        <View
+            android:id="@+id/line1"
+            android:layout_width="2dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="10dp" />
+
+        <TextView
+            android:id="@+id/tvStepAdmin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Acc Admin Wilayah"
+            android:textSize="14sp"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical" />
+
+        <View
+            android:id="@+id/line2"
+            android:layout_width="2dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="10dp" />
+
+        <TextView
+            android:id="@+id/tvStepLSM"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Acc LSM"
+            android:textSize="14sp"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical" />
+
+        <View
+            android:id="@+id/line3"
+            android:layout_width="2dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="10dp" />
+
+        <TextView
+            android:id="@+id/tvStepComplete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Complete"
+            android:textSize="14sp"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -17,6 +17,7 @@ import com.example.lsmsawit_projekmap.model.Kebun
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+
 class HomeFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
@@ -39,8 +40,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // In HomeFragment.kt
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -53,7 +52,7 @@ class HomeFragment : Fragment() {
         btnTambah = view.findViewById(R.id.btnTambahKebun)
 
         // Correctly initialize swipeRefreshLayout using the view
-        swipeRefreshLayout = view.findViewById(R.id.swipeRefresh) // Or R.id.swipeRefresh if that's the ID in your XML
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefresh)
 
         // Set up the RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -63,6 +62,7 @@ class HomeFragment : Fragment() {
             bottomSheet.show(parentFragmentManager, "FormKebun")
         }
 
+        // **PERUBAHAN: Tambahkan onStatusClick saat inisialisasi Adapter**
         adapter = KebunAdapter(dataList,
             onItemClick = { kebun ->
                 val bs = FormIsiDataKebun.newInstance(
@@ -81,6 +81,11 @@ class HomeFragment : Fragment() {
                     kebun.luas, kebun.tahunTanam, kebun.status
                 )
                 bs.show(parentFragmentManager, "FormKebun")
+            },
+            // **IMPLEMENTASI KLIK STATUS: Memanggil BottomSheet**
+            onStatusClick = { kebun ->
+                val bottomSheet = TimelineBottomSheet.newInstance(kebun.status)
+                bottomSheet.show(parentFragmentManager, "TimelineStatus")
             }
         )
         recyclerView.adapter = adapter
@@ -96,24 +101,7 @@ class HomeFragment : Fragment() {
 
     // Fungsi terpisah untuk setup RecyclerView agar onCreateView lebih rapi
     private fun setupRecyclerView() {
-        adapter = KebunAdapter(
-            dataList,
-            onItemClick = { /* no-op */ },
-            onEditClick = { kebun ->
-                val bs = FormIsiDataKebun.newInstance(
-                    idKebun = kebun.idKebun,
-                    namaKebun = kebun.namaKebun,
-                    lokasi = kebun.lokasi,
-                    luas = kebun.luas,
-                    tahunTanam = kebun.tahunTanam,
-                    status = kebun.status
-                )
-                bs.show(parentFragmentManager, "FormKebun")
-            }
-        )
-
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = adapter
+        // Biarkan seperti semula
     }
 
     // Public function to reload data (dipanggil setelah simpan/hapus)
@@ -125,16 +113,15 @@ class HomeFragment : Fragment() {
             .whereEqualTo("userId", userId)
             .get()
             .addOnSuccessListener { result ->
-                // Gunakan toObjects agar lebih bersih dan aman
                 val kebunList = result.toObjects(Kebun::class.java)
 
+                // Logika visibilitas dikembalikan ke asli (hilang jika kosong)
                 if (kebunList.isEmpty()) {
                     layoutEmpty.visibility = View.VISIBLE
                     recyclerView.visibility = View.GONE
                 } else {
                     layoutEmpty.visibility = View.GONE
                     recyclerView.visibility = View.VISIBLE
-                    // Kirim list yang sudah lengkap ke adapter
                     adapter.updateList(kebunList)
                     Log.d("HomeFragment", "RecyclerView updated: ${kebunList.size} items ✅")
                 }

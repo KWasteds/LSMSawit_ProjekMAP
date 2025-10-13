@@ -10,7 +10,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="green_10">#1C352D</color>
 
-    <!-- Tambahan gradient -->
+    <color name="green_primary">#4CAF50</color>
+    <color name="gray_secondary">#757575</color>
     <color name="blue_gradient">#4FACFE</color>
     <color name="purple_gradient">#A767E5</color>
     <color name="pink_gradient">#FF6FD8</color>

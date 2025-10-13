@@ -15,7 +15,9 @@ import com.example.lsmsawit_projekmap.MapsActivity
 class KebunAdapter(
     private var list: MutableList<Kebun>,
     private val onItemClick: (Kebun) -> Unit,
-    private val onEditClick: (Kebun) -> Unit
+    private val onEditClick: (Kebun) -> Unit,
+    // **PERUBAHAN 1: Tambah Listener baru**
+    private val onStatusClick: (Kebun) -> Unit
 ) : RecyclerView.Adapter<KebunAdapter.KebunViewHolder>() {
 
     inner class KebunViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -69,7 +71,16 @@ class KebunAdapter(
                 holder.tvStatus.text = "Ditolak"
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_ditolak)
             }
+            "complete" -> {
+                holder.tvStatus.text = "Complete"
+                holder.tvStatus.setBackgroundResource(R.drawable.bg_status_diterima)
+            }
             else -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
+        }
+
+        // **PERUBAHAN 2: Listener klik untuk status**
+        holder.tvStatus.setOnClickListener {
+            onStatusClick(kebun)
         }
 
         // --- Gambar kebun ---
@@ -94,13 +105,10 @@ class KebunAdapter(
 
         if (isEditable) {
             holder.btnEdit.visibility = View.VISIBLE
-            // Hanya tombol edit yang aktif
             holder.btnEdit.setOnClickListener { onEditClick(kebun) }
-            // Card tidak bisa diklik untuk edit
             holder.itemView.setOnClickListener(null)
         } else {
             holder.btnEdit.visibility = View.GONE
-            // Card bisa diklik untuk detail (kalau kamu ingin fungsinya)
             holder.itemView.setOnClickListener { onItemClick(kebun) }
         }
     }
