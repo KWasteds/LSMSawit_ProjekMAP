@@ -53,14 +53,11 @@ class AdminActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        // <-- TAMBAHKAN BLOK KODE INI -->
-        // Ini adalah bagian kunci untuk memuat daftar kebun Anda
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.admin_content, AdminHomeFragment())
                 .commit()
         }
-        // <-- BATAS PENAMBAHAN KODE -->
 
         // ✅ Tombol Logout di Drawer
         val logoutButton = navView.findViewById<Button>(R.id.btnLogout)
@@ -75,15 +72,24 @@ class AdminActivity : AppCompatActivity() {
 
         // ✅ Navigasi Drawer
         navView.setNavigationItemSelectedListener { menuItem ->
+            val menu = navView.menu
+            val petaniItem = menu.findItem(R.id.nav_petani)
+            petaniItem.isVisible = true
+
             when (menuItem.itemId) {
                 R.id.nav_home -> {
                     Toast.makeText(this, "Menu ${menuItem.title} belum diatur", Toast.LENGTH_SHORT).show()
+                }
+                R.id.nav_petani -> {
+                    Toast.makeText(this, "Menu ${menuItem.title} diklik", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, PetaniListActivity::class.java))
                 }
                 R.id.nav_account -> {
                     val intent = Intent(this, AccountSettingActivity::class.java)
                     startActivity(intent)
                 }
             }
+
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }

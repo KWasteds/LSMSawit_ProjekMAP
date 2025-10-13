@@ -57,6 +57,10 @@ class MainActivity : AppCompatActivity() {
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
 
+        val menu = navView.menu
+        val petaniMenuItem = menu.findItem(R.id.nav_petani)
+        petaniMenuItem?.isVisible = false
+
         appBarConfiguration = AppBarConfiguration(
             setOf(R.id.nav_home),
             drawerLayout
@@ -74,6 +78,8 @@ class MainActivity : AppCompatActivity() {
                     startActivity(Intent(this, AccountSettingActivity::class.java))
                 }
             }
+
+
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }

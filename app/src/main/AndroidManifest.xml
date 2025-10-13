@@ -75,8 +75,14 @@
             android:name=".MapsActivity"
             android:exported="false" />
 
+        <!-- ✅ Halaman Notifikasi -->
         <activity
             android:name=".NotifikasiActivity"
+            android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar" />
+
+        <!-- ✅ Halaman List Petani -->
+        <activity
+            android:name=".ui.admin.PetaniListActivity"
             android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar" />
 
         <!-- ✅ FileProvider (penting untuk kamera & upload foto) -->
