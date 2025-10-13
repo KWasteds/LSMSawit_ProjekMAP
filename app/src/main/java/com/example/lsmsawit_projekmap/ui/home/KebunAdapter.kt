@@ -39,7 +39,7 @@ class KebunAdapter(
     override fun onBindViewHolder(holder: KebunViewHolder, position: Int) {
         val kebun = list[position]
 
-
+        // --- Isi data dasar ---
         holder.tvNamaKebun.text = kebun.namaKebun
         holder.tvIdKebun.text = "ID: ${kebun.idKebun}"
         holder.tvLokasi.text = "Lokasi: ${kebun.lokasi}"
@@ -52,16 +52,16 @@ class KebunAdapter(
             holder.tvFotoTimestamp.visibility = View.GONE
         }
 
-        // ✅ Status
+        // --- Status visual ---
         holder.tvStatus.text = kebun.status
         when (kebun.status.lowercase()) {
             "pending" -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
             "revisi" -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_ditolak)
             "verifikasi1" -> {
-                holder.tvStatus.text = "Diproses" // Tampilkan "Diproses" ke petani
-                holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending) // Buat drawable baru jika perlu
+                holder.tvStatus.text = "Diproses"
+                holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
             }
-            "approved" -> { // Jika ada status final "Approved"
+            "approved" -> {
                 holder.tvStatus.text = "Disetujui"
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_diterima)
             }
@@ -72,23 +72,7 @@ class KebunAdapter(
             else -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
         }
 
-        val isEditable = when (kebun.status.lowercase()) {
-            "pending", "revisi" -> true // Hanya bisa diedit jika statusnya Pending atau Revisi
-            else -> false
-        }
-
-        if (isEditable) {
-            holder.btnEdit.visibility = View.VISIBLE
-            // Klik seluruh item dan tombol edit sama-sama membuka form edit
-            holder.itemView.setOnClickListener { onEditClick(kebun) }
-            holder.btnEdit.setOnClickListener { onEditClick(kebun) }
-        } else {
-            holder.btnEdit.visibility = View.GONE
-            // Jika tidak bisa diedit, klik item tidak melakukan apa-apa (atau bisa tampilkan detail)
-            holder.itemView.setOnClickListener(null) // Nonaktifkan klik pada item
-        }
-
-        // ✅ Gambar
+        // --- Gambar kebun ---
         Glide.with(holder.itemView.context)
             .load(kebun.imageUri)
             .placeholder(R.drawable.placeholder_image)
@@ -96,20 +80,30 @@ class KebunAdapter(
             .centerCrop()
             .into(holder.imgKebun)
 
-        // Klik seluruh item → edit
-        holder.itemView.setOnClickListener { onItemClick(kebun) }
-        holder.btnEdit.setOnClickListener { onEditClick(kebun) }
-
-        // ✅ Klik tombol lokasi
+        // --- Tombol lokasi ---
         holder.btnLocation.setOnClickListener {
             val context = holder.itemView.context
             val intent = Intent(context, MapsActivity::class.java)
-            intent.putExtra("lokasi", kebun.lokasi) // Format: "lat,long"
+            intent.putExtra("lokasi", kebun.lokasi)
             intent.putExtra("namaKebun", kebun.namaKebun)
             context.startActivity(intent)
         }
-    }
 
+        // --- Logika edit dan klik ---
+        val isEditable = kebun.status.lowercase() in listOf("pending", "revisi")
+
+        if (isEditable) {
+            holder.btnEdit.visibility = View.VISIBLE
+            // Hanya tombol edit yang aktif
+            holder.btnEdit.setOnClickListener { onEditClick(kebun) }
+            // Card tidak bisa diklik untuk edit
+            holder.itemView.setOnClickListener(null)
+        } else {
+            holder.btnEdit.visibility = View.GONE
+            // Card bisa diklik untuk detail (kalau kamu ingin fungsinya)
+            holder.itemView.setOnClickListener { onItemClick(kebun) }
+        }
+    }
 
     override fun getItemCount(): Int = list.size
 
