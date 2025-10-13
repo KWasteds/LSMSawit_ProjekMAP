@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
 
         appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow),
+            setOf(R.id.nav_home),
             drawerLayout
         )
 
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow -> {
+                R.id.nav_home -> {
                     NavigationUI.onNavDestinationSelected(menuItem, navController)
                 }
                 R.id.nav_account -> {

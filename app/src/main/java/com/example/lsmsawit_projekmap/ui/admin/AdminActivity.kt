@@ -76,7 +76,7 @@ class AdminActivity : AppCompatActivity() {
         // ✅ Navigasi Drawer
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow -> {
+                R.id.nav_home -> {
                     Toast.makeText(this, "Menu ${menuItem.title} belum diatur", Toast.LENGTH_SHORT).show()
                 }
                 R.id.nav_account -> {
