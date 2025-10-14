@@ -21,6 +21,10 @@ import com.example.lsmsawit_projekmap.ui.admin.VerifikasiDialogListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 import com.google.firebase.firestore.Query
 
 class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
@@ -60,6 +64,13 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
                     putExtra("namaKebun", kebun.namaKebun)
                 }
                 startActivity(intent)
+            },
+            onDownloadClick = { kebun ->
+                if (kebun.status != "Diterima") {
+                    Toast.makeText(requireContext(), "Hanya kebun dengan status 'Diterima' yang bisa diunduh.", Toast.LENGTH_SHORT).show()
+                    return@KebunLSMAdapter
+                }
+                generateKebunPdf(kebun)
             }
         )
         recyclerView.adapter = adapter
@@ -90,13 +101,18 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
         performVerificationUpdate(idKebun, ownerUserId, namaKebun, newStatus, note)
     }
 
-    private fun performVerificationUpdate(idKebun: String, ownerUserId: String, kebunName: String, newStatus: String, note: String?) {
+    private fun performVerificationUpdate(
+        idKebun: String,
+        ownerUserId: String,
+        kebunName: String,
+        newStatus: String,
+        note: String?
+    ) {
         val adminUid = auth.currentUser?.uid ?: return
 
-        // Metode ini sudah siap menerima status "Diterima" dan "Revisi"
-        Log.d("AdminLSMHome", "Menjalankan WriteBatch untuk kebun: $idKebun dengan status: $newStatus")
         val batch = db.batch()
 
+        // Update kebun
         val kebunRef = db.collection("kebun").document(idKebun)
         val kebunUpdates = hashMapOf<String, Any>(
             "status" to newStatus,
@@ -106,9 +122,26 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
         if (!note.isNullOrBlank()) kebunUpdates["verificationNote"] = note
         batch.update(kebunRef, kebunUpdates)
 
-        // Logika Notifikasi bisa ditambahkan/diaktifkan di sini nanti
-        // ...
+        // 🔔 Buat Notifikasi untuk Petani
+        val notifRef = db.collection("notifications").document()
+        val message = when (newStatus) {
+            "Diterima" -> "Selamat! Pengajuan kebun '$kebunName' Anda telah diterima oleh admin pusat."
+            "Revisi" -> "Pengajuan kebun '$kebunName' Anda memerlukan revisi dari admin pusat."
+            else -> "Status kebun '$kebunName' Anda telah diperbarui."
+        }
+        val newNotification = Notifikasi(
+            id = notifRef.id,
+            userId = ownerUserId,
+            kebunId = idKebun,
+            kebunName = kebunName,
+            message = message,
+            note = note,
+            adminId = adminUid,
+            read = false
+        )
+        batch.set(notifRef, newNotification)
 
+        // Commit
         batch.commit()
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "Verifikasi berhasil disimpan", Toast.LENGTH_SHORT).show()
@@ -119,6 +152,7 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
                 Toast.makeText(requireContext(), "Gagal menyimpan verifikasi: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
+
 
     private fun loadKebunForVerification() {
         swipeRefreshLayout.isRefreshing = true
@@ -165,7 +199,8 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
             swipeRefreshLayout.isRefreshing = false
             return
         }
-        db.collection("users").whereIn(com.google.firebase.firestore.FieldPath.documentId(), userIds).get()
+        db.collection("users")
+            .whereIn(com.google.firebase.firestore.FieldPath.documentId(), userIds).get()
             .addOnSuccessListener { usersSnap ->
                 val userNameMap = usersSnap.documents.associate { doc ->
                     doc.id to (doc.getString("name") ?: "Tanpa Nama")
@@ -182,6 +217,133 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
             .addOnCompleteListener {
                 swipeRefreshLayout.isRefreshing = false
             }
+    }
+
+    private fun generateKebunPdf(kebun: Kebun) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val fileName = "Laporan_Kebun_${kebun.idKebun}.pdf"
+                val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(
+                    android.os.Environment.DIRECTORY_DOWNLOADS
+                )
+                val filePath = java.io.File(downloadsDir, fileName).absolutePath
+
+                val document = com.itextpdf.text.Document()
+                val writer = com.itextpdf.text.pdf.PdfWriter.getInstance(
+                    document,
+                    java.io.FileOutputStream(filePath)
+                )
+                document.open()
+
+                val titleFont = com.itextpdf.text.Font(
+                    com.itextpdf.text.Font.FontFamily.HELVETICA,
+                    20f,
+                    com.itextpdf.text.Font.BOLD
+                )
+                val fieldFont = com.itextpdf.text.Font(
+                    com.itextpdf.text.Font.FontFamily.HELVETICA,
+                    12f
+                )
+
+                document.add(com.itextpdf.text.Paragraph("Laporan Kebun ${kebun.namaKebun}", titleFont))
+                document.add(com.itextpdf.text.Paragraph(" "))
+                document.add(
+                    com.itextpdf.text.Paragraph(
+                        "Tanggal Cetak: ${
+                            java.text.SimpleDateFormat(
+                                "dd MMM yyyy, HH:mm",
+                                java.util.Locale.getDefault()
+                            ).format(java.util.Date())
+                        }", fieldFont
+                    )
+                )
+
+                fun addField(label: String, value: String?) {
+                    document.add(com.itextpdf.text.Paragraph("$label: ${value ?: "-"}", fieldFont))
+                }
+
+                // 🔹 Muat gambar di background (IO Thread)
+                try {
+                    val imageUrl = kebun.imageUri
+                    if (!imageUrl.isNullOrEmpty()) {
+                        val bitmap = com.bumptech.glide.Glide.with(requireContext())
+                            .asBitmap()
+                            .load(imageUrl)
+                            .submit()
+                            .get() // sekarang ini berjalan di IO thread
+
+                        val stream = java.io.ByteArrayOutputStream()
+                        bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 80, stream)
+                        val image = com.itextpdf.text.Image.getInstance(stream.toByteArray())
+
+                        image.scaleToFit(450f, 450f)
+                        image.alignment = com.itextpdf.text.Element.ALIGN_CENTER
+                        document.add(image)
+                        document.add(
+                            com.itextpdf.text.Paragraph(
+                                "Gambar Kebun",
+                                com.itextpdf.text.Font(
+                                    com.itextpdf.text.Font.FontFamily.HELVETICA,
+                                    14f,
+                                    com.itextpdf.text.Font.BOLD
+                                )
+                            )
+                        )
+                        document.add(com.itextpdf.text.Paragraph(" "))
+                    }
+                } catch (e: Exception) {
+                    Log.e("PDF", "Gagal menambah gambar: ${e.message}")
+                    document.add(
+                        com.itextpdf.text.Paragraph("Gagal memuat gambar: ${e.message}", fieldFont)
+                    )
+                }
+
+                // 🔹 Tambahkan data kebun
+                addField("Link Gambar", kebun.imageUri)
+                document.add(com.itextpdf.text.Paragraph(" "))
+                addField("ID Kebun", kebun.idKebun)
+                addField("Nama Kebun", kebun.namaKebun)
+                addField("Luas", "${kebun.luas ?: "-"} ha")
+                addField("Lokasi", kebun.lokasi)
+                addField("Tahun Tanam", kebun.tahunTanam?.toString())
+                addField("Status", kebun.status)
+                addField("User ID (Pemilik)", kebun.userId)
+                document.add(com.itextpdf.text.Paragraph(" "))
+                document.add(com.itextpdf.text.Paragraph(" "))
+
+                document.close()
+                writer.close()
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        requireContext(),
+                        "PDF berhasil disimpan di folder Download:\n$fileName",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    // 🔹 Buka PDF langsung
+                    val pdfFile = java.io.File(filePath)
+                    val uri = androidx.core.content.FileProvider.getUriForFile(
+                        requireContext(),
+                        requireContext().packageName + ".provider",
+                        pdfFile
+                    )
+                    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                        setDataAndType(uri, "application/pdf")
+                        addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    try {
+                        startActivity(intent)
+                    } catch (e: Exception) {
+                        Toast.makeText(requireContext(), "Tidak ada aplikasi PDF viewer.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+//                    Toast.makeText(requireContext(), "Gagal membuat PDF: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     private fun updateList(list: List<KebunAdminViewData>) {

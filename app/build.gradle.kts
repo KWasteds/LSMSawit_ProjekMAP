@@ -110,4 +110,7 @@ dependencies {
 
     // Refresh
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    // Download to pdf
+    implementation("com.itextpdf:itextg:5.5.10")
 }

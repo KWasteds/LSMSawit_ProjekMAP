@@ -78,6 +78,13 @@ class AdminLSMActivity : AppCompatActivity() {
                 R.id.nav_semua_kebun -> {
                     replaceFragment(SemuaKebunFragment(), "Semua Data Kebun")
                 }
+                R.id.nav_maps_semua_kebun -> {
+                    val fragment = MapsSemuaKebunFragment()
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.admin_lsm_content, fragment)
+                        .commit()
+                }
+
                 R.id.nav_account -> {
                     startActivity(Intent(this, AccountSettingActivity::class.java))
                 }
@@ -100,6 +107,11 @@ class AdminLSMActivity : AppCompatActivity() {
                 when (currentFragment) {
                     is AdminLSMHomeFragment -> currentFragment.filterList(query)
                     is SemuaKebunFragment -> currentFragment.filterList(query)
+                    is MapsSemuaKebunFragment -> {
+                        if (query.length >= 5) { // minimal 5 karakter agar tidak langsung query
+                            currentFragment.zoomToKebun(query.trim())
+                        }
+                    }
                 }
             }
         })

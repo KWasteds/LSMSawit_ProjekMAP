@@ -14,22 +14,24 @@ import com.example.lsmsawit_projekmap.model.KebunAdminViewData // Pastikan mengg
 class KebunLSMAdapter(
     private var list: MutableList<KebunAdminViewData>, // Pastikan menggunakan model yang tepat
     private val onItemClick: (Kebun) -> Unit,
-    private val onLocationClick: (Kebun) -> Unit
+    private val onLocationClick: (Kebun) -> Unit,
+    private val onDownloadClick: (Kebun) -> Unit
 ) : RecyclerView.Adapter<KebunLSMAdapter.ViewHolder>() {
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val img: ImageView = view.findViewById(R.id.imgKebunAdmin)
-        val namaKebun: TextView = view.findViewById(R.id.tvNamaKebunAdmin)
-        val status: TextView = view.findViewById(R.id.tvStatusAdmin)
-        val namaPemilik: TextView = view.findViewById(R.id.tvNamaPemilikAdmin)
-        val idKebun: TextView = view.findViewById(R.id.tvIdKebunAdmin)
-        val info: TextView = view.findViewById(R.id.tvInfoTambahanAdmin)
-        val fotoTimestamp: TextView = view.findViewById(R.id.tvFotoTimestampAdmin)
-        val btnLocation: ImageView = view.findViewById(R.id.btnLocationAdmin)
+        val img: ImageView = view.findViewById(R.id.imgKebunAdminLSM)
+        val namaKebun: TextView = view.findViewById(R.id.tvNamaKebunAdminLSM)
+        val status: TextView = view.findViewById(R.id.tvStatusAdminLSM)
+        val namaPemilik: TextView = view.findViewById(R.id.tvNamaPemilikAdminLSM)
+        val idKebun: TextView = view.findViewById(R.id.tvIdKebunAdminLSM)
+        val info: TextView = view.findViewById(R.id.tvInfoTambahanAdminLSM)
+        val fotoTimestamp: TextView = view.findViewById(R.id.tvFotoTimestampAdminLSM)
+        val btnLocation: ImageView = view.findViewById(R.id.btnLocationAdminLSM)
+        val btnDownload: ImageView = view.findViewById(R.id.btnDownloadAdminLSM)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.item_kebun_admin, parent, false)
+        val v = LayoutInflater.from(parent.context).inflate(R.layout.item_kebun_lsm, parent, false)
         return ViewHolder(v)
     }
 
@@ -70,6 +72,7 @@ class KebunLSMAdapter(
             .into(holder.img)
 
         holder.itemView.setOnClickListener { onItemClick(kebun) }
+        holder.btnDownload.setOnClickListener { onDownloadClick(kebun) }
         holder.btnLocation.setOnClickListener { onLocationClick(kebun) }
     }
 

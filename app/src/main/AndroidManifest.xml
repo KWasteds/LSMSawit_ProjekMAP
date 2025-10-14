@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+
     <!-- ✅ Dukungan Android 13+ (akses foto/media) -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
@@ -90,6 +91,7 @@
         <activity
             android:name=".ui.admin.PetaniListActivity"
             android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar" />
+
 
         <!-- ✅ FileProvider (penting untuk kamera & upload foto) -->
         <provider

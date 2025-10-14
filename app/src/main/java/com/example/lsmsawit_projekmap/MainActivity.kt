@@ -64,6 +64,9 @@ class MainActivity : AppCompatActivity() {
         val semuaKebunMenuItem = menu.findItem(R.id.nav_semua_kebun)
         semuaKebunMenuItem?.isVisible = false
 
+        val mapsKebunMenuItem = menu.findItem(R.id.nav_maps_semua_kebun)
+        mapsKebunMenuItem?.isVisible = false
+
         appBarConfiguration = AppBarConfiguration(
             setOf(R.id.nav_home),
             drawerLayout

@@ -111,7 +111,7 @@ class AdminHomeFragment : Fragment(), VerifikasiDialogListener {
         // Operasi 2: Buat Dokumen Notifikasi Baru
         val notifRef = db.collection("notifications").document()
         val message = when (newStatus) {
-            "Verifikasi1" -> "Selamat! Pengajuan kebun '$kebunName' Anda telah diverifikasi tahap 1."
+            "Verifikasi1" -> "Selamat! Pengajuan kebun '$kebunName' Anda telah diverifikasi oleh Admin Wilayah."
             "Rejected" -> "Mohon maaf, pengajuan kebun '$kebunName' Anda ditolak."
             "Revisi" -> "Pengajuan kebun '$kebunName' Anda memerlukan revisi."
             else -> "Status kebun '$kebunName' Anda telah diperbarui."

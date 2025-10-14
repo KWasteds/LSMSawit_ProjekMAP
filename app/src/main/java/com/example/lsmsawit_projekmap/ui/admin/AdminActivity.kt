@@ -74,6 +74,9 @@ class AdminActivity : AppCompatActivity() {
         val semuaKebunMenuItem = menu.findItem(R.id.nav_semua_kebun)
         semuaKebunMenuItem?.isVisible = false
 
+        val mapsKebunMenuItem = menu.findItem(R.id.nav_maps_semua_kebun)
+        mapsKebunMenuItem?.isVisible = false
+
         // ✅ Navigasi Drawer
         navView.setNavigationItemSelectedListener { menuItem ->
             val menu = navView.menu
