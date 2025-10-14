@@ -69,21 +69,32 @@ class LoginActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 Toast.makeText(this, "Login berhasil!", Toast.LENGTH_SHORT).show()
 
-                if (email.equals("tangerangsawit@gmail.com", ignoreCase = true)) {
-                    // 🔹 Jika email admin, buka halaman admin
-                    val intent = Intent(this, AdminActivity::class.java)
-                    startActivity(intent)
-                } else {
-                    // 🔹 Jika bukan admin, buka halaman user biasa
-                    val intent = Intent(this, com.example.lsmsawit_projekmap.MainActivity::class.java)
-                    startActivity(intent)
+                when {
+                    // 🔹 Admin wilayah
+                    email.equals("tangerangsawit@gmail.com", ignoreCase = true) -> {
+                        val intent = Intent(this, AdminActivity::class.java)
+                        startActivity(intent)
+                    }
+
+                    // 🔹 Admin LSM
+                    email.equals("lsmadmin@gmail.com", ignoreCase = true) -> {
+                        val intent = Intent(this, com.example.lsmsawit_projekmap.ui.adminlsm.AdminLSMActivity::class.java)
+                        startActivity(intent)
+                    }
+
+                    // 🔹 User biasa
+                    else -> {
+                        val intent = Intent(this, com.example.lsmsawit_projekmap.MainActivity::class.java)
+                        startActivity(intent)
+                    }
                 }
 
-                finish() // Supaya tidak bisa kembali ke login dengan tombol Back
+                finish()
             }
             .addOnFailureListener {
                 Toast.makeText(this, "Login gagal: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
 
 }

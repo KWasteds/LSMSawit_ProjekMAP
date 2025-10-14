@@ -47,6 +47,12 @@
             android:exported="false"
             android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar" />
 
+        <!-- ✅ Halaman Admin LSM -->
+        <activity
+            android:name=".ui.adminlsm.AdminLSMActivity"
+            android:exported="false"
+            android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar" />
+
         <!-- ✅ Halaman Login -->
         <activity
             android:name=".ui.auth.LoginActivity"

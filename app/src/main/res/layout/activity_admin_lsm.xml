@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:gravity="center"
+    android:background="#F8F8F8"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.adminlsm.AdminLSMActivity">
+
+    <TextView
+        android:id="@+id/tvWelcomeAdminLSM"
+        android:text="Selamat datang, Admin LSM!"
+        android:textColor="#333333"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/btnLogoutLSM"
+        android:text="Logout"
+        android:backgroundTint="#E53935"
+        android:textColor="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>
