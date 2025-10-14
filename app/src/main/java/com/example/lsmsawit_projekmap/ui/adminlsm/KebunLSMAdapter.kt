@@ -1,6 +1,5 @@
-package com.example.lsmsawit_projekmap.ui.admin
+package com.example.lsmsawit_projekmap.ui.adminlsm
 
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,29 +9,26 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.lsmsawit_projekmap.R
 import com.example.lsmsawit_projekmap.model.Kebun
-import com.example.lsmsawit_projekmap.model.KebunAdminViewData
+import com.example.lsmsawit_projekmap.model.KebunAdminViewData // Pastikan menggunakan model yang tepat
 
-// Ubah parameter constructor
-class KebunAdminAdapter(
-    private var list: MutableList<KebunAdminViewData>,
+class KebunLSMAdapter(
+    private var list: MutableList<KebunAdminViewData>, // Pastikan menggunakan model yang tepat
     private val onItemClick: (Kebun) -> Unit,
     private val onLocationClick: (Kebun) -> Unit
-) : RecyclerView.Adapter<KebunAdminAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<KebunLSMAdapter.ViewHolder>() {
 
-    // Perbarui ViewHolder dengan view yang baru
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val img: ImageView = view.findViewById(R.id.imgKebunAdmin)
         val namaKebun: TextView = view.findViewById(R.id.tvNamaKebunAdmin)
         val status: TextView = view.findViewById(R.id.tvStatusAdmin)
-        val namaPemilik: TextView = view.findViewById(R.id.tvNamaPemilikAdmin) // Baru
-        val idKebun: TextView = view.findViewById(R.id.tvIdKebunAdmin)       // Baru
+        val namaPemilik: TextView = view.findViewById(R.id.tvNamaPemilikAdmin)
+        val idKebun: TextView = view.findViewById(R.id.tvIdKebunAdmin)
         val info: TextView = view.findViewById(R.id.tvInfoTambahanAdmin)
-        val fotoTimestamp: TextView = view.findViewById(R.id.tvFotoTimestampAdmin) // Baru
-        val btnLocation: ImageView = view.findViewById(R.id.btnLocationAdmin)     // Baru
+        val fotoTimestamp: TextView = view.findViewById(R.id.tvFotoTimestampAdmin)
+        val btnLocation: ImageView = view.findViewById(R.id.btnLocationAdmin)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        // Gunakan layout yang sudah kita perbaiki
         val v = LayoutInflater.from(parent.context).inflate(R.layout.item_kebun_admin, parent, false)
         return ViewHolder(v)
     }
@@ -41,13 +37,15 @@ class KebunAdminAdapter(
         val viewData = list[position]
         val kebun = viewData.kebun
 
-        // Set semua data ke view
         holder.namaKebun.text = kebun.namaKebun
-        if (kebun.status.equals("pending", ignoreCase = true)) {
+
+        // Logika ini sudah benar, jika status "Diterima", maka akan ditampilkan "Diterima"
+        if (kebun.status.equals("Verifikasi1", ignoreCase = true)) {
             holder.status.text = "Pending"
         } else {
             holder.status.text = kebun.status
         }
+
         holder.namaPemilik.text = "Pemilik: ${viewData.namaPemilik}"
         holder.idKebun.text = "ID: ${kebun.idKebun}"
         holder.info.text = "Luas: ${kebun.luas} ha • Tanam: ${kebun.tahunTanam}"
@@ -56,30 +54,28 @@ class KebunAdminAdapter(
         val lokasi = kebun.lokasi.takeIf { it.isNotEmpty() } ?: "Lokasi tidak ada"
         holder.fotoTimestamp.text = "Diambil: $timestamp ($lokasi)"
 
-        // Atur warna status
+        // Logika warna ini sudah benar dan sudah mencakup status "diterima"
         when (kebun.status.lowercase()) {
-            "pending" -> holder.status.setBackgroundResource(R.drawable.bg_status_pending)
+            "pending", "verifikasi1" -> holder.status.setBackgroundResource(R.drawable.bg_status_pending)
             "revisi", "rejected" -> holder.status.setBackgroundResource(R.drawable.bg_status_ditolak)
-            "verifikasi1", "diterima" -> holder.status.setBackgroundResource(R.drawable.bg_status_diterima)
+            "diterima", "approved", "accepted" -> holder.status.setBackgroundResource(R.drawable.bg_status_diterima)
             else -> holder.status.setBackgroundResource(R.drawable.bg_status_pending)
         }
 
         Glide.with(holder.itemView.context)
             .load(kebun.imageUri)
-            .placeholder(R.drawable.placeholder_image)
+            .placeholder(R.drawable.placeholder_image) // Perbaikan kecil
             .error(R.drawable.placeholder_image)
             .centerCrop()
             .into(holder.img)
 
-        // Set dua listener yang berbeda
         holder.itemView.setOnClickListener { onItemClick(kebun) }
         holder.btnLocation.setOnClickListener { onLocationClick(kebun) }
     }
 
     override fun getItemCount(): Int = list.size
 
-    // Ubah parameter fungsi updateList
-    fun updateList(newList: List<KebunAdminViewData>) {
+    fun updateList(newList: List<KebunAdminViewData>) { // Pastikan menggunakan model yang tepat
         list.clear()
         list.addAll(newList)
         notifyDataSetChanged()

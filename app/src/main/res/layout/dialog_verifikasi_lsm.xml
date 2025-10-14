@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/tvDialogTitleLSM"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Verifikasi Kebun"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pilih tindakan untuk kebun ini:"
+        android:layout_marginBottom="8dp"/>
+
+    <RadioGroup
+        android:id="@+id/rgActionsLSM"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/rbApproveLSM"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Setujui (Approve)" />
+
+        <RadioButton
+            android:id="@+id/rbRejectLSM"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tolak (butuh Revisi)" />
+
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/etNoteLSM"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Tambahkan catatan untuk petani (wajib jika ditolak)"
+        android:inputType="textMultiLine"
+        android:minLines="2"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btnCancelLSM"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Batal"
+            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+        <Button
+            android:id="@+id/btnOkLSM"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Simpan"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
+</LinearLayout>

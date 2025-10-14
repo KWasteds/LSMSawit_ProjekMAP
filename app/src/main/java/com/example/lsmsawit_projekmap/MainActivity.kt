@@ -61,6 +61,9 @@ class MainActivity : AppCompatActivity() {
         val petaniMenuItem = menu.findItem(R.id.nav_petani)
         petaniMenuItem?.isVisible = false
 
+        val semuaKebunMenuItem = menu.findItem(R.id.nav_semua_kebun)
+        semuaKebunMenuItem?.isVisible = false
+
         appBarConfiguration = AppBarConfiguration(
             setOf(R.id.nav_home),
             drawerLayout

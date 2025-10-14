@@ -70,6 +70,10 @@ class AdminActivity : AppCompatActivity() {
             drawerLayout.closeDrawer(GravityCompat.START)
         }
 
+        val menu = navView.menu
+        val semuaKebunMenuItem = menu.findItem(R.id.nav_semua_kebun)
+        semuaKebunMenuItem?.isVisible = false
+
         // ✅ Navigasi Drawer
         navView.setNavigationItemSelectedListener { menuItem ->
             val menu = navView.menu

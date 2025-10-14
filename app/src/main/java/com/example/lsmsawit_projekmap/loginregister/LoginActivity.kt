@@ -9,18 +9,22 @@ import com.example.lsmsawit_projekmap.MainActivity
 import com.example.lsmsawit_projekmap.databinding.ActivityLoginBinding
 import com.example.lsmsawit_projekmap.ui.admin.AdminActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
 
         // Tombol Login
         binding.btnLogin.setOnClickListener {
@@ -67,34 +71,38 @@ class LoginActivity : AppCompatActivity() {
     private fun loginUser(email: String, pass: String) {
         auth.signInWithEmailAndPassword(email, pass)
             .addOnSuccessListener {
-                Toast.makeText(this, "Login berhasil!", Toast.LENGTH_SHORT).show()
+                val currentUser = auth.currentUser
+                if (currentUser != null) {
+                    val uid = currentUser.uid
 
-                when {
-                    // 🔹 Admin wilayah
-                    email.equals("tangerangsawit@gmail.com", ignoreCase = true) -> {
-                        val intent = Intent(this, AdminActivity::class.java)
-                        startActivity(intent)
-                    }
+                    db.collection("users").document(uid).get()
+                        .addOnSuccessListener { document ->
+                            if (document != null && document.exists()) {
+                                val role = document.getString("role") ?: ""
 
-                    // 🔹 Admin LSM
-                    email.equals("lsmadmin@gmail.com", ignoreCase = true) -> {
-                        val intent = Intent(this, com.example.lsmsawit_projekmap.ui.adminlsm.AdminLSMActivity::class.java)
-                        startActivity(intent)
-                    }
-
-                    // 🔹 User biasa
-                    else -> {
-                        val intent = Intent(this, com.example.lsmsawit_projekmap.MainActivity::class.java)
-                        startActivity(intent)
-                    }
+                                when (role.lowercase()) {
+                                    "adminwilayah" -> {
+                                        startActivity(Intent(this, AdminActivity::class.java))
+                                    }
+                                    "adminpusat" -> {
+                                        startActivity(Intent(this, com.example.lsmsawit_projekmap.ui.adminlsm.AdminLSMActivity::class.java))
+                                    }
+                                    else -> {
+                                        startActivity(Intent(this, MainActivity::class.java))
+                                    }
+                                }
+                                finish()
+                            } else {
+                                Toast.makeText(this, "Data user tidak ditemukan di Firestore", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this, "Gagal ambil data user: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
                 }
-
-                finish()
             }
             .addOnFailureListener {
                 Toast.makeText(this, "Login gagal: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
-
-
 }

@@ -185,7 +185,7 @@ class AdminHomeFragment : Fragment(), VerifikasiDialogListener {
     }
 
     private fun updateListSorted(list: List<KebunAdminViewData>) {
-        val order = mapOf("pending" to 0, "verifikasi1" to 1, "revisi" to 2, "rejected" to 4)
+        val order = mapOf("pending" to 0, "verifikasi1" to 1, "revisi" to 3, "diterima" to 2, "rejected" to 4)
         val sortedList = list.sortedWith(compareBy { order[it.kebun.status.lowercase()] ?: 99 })
         fullDataList = sortedList
         adapter.updateList(fullDataList)

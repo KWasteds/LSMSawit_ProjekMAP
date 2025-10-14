@@ -27,8 +27,8 @@ class TimelineBottomSheet : BottomSheetDialogFragment() {
     private val timelineSteps = listOf(
         "Pending",
         "Acc Admin Wilayah",
-        "Acc LSM",
-        "Complete"
+        "Diproses Pihak LSM",
+        "Selesai"
     )
 
     override fun onCreateView(
@@ -65,7 +65,7 @@ class TimelineBottomSheet : BottomSheetDialogFragment() {
             "verifikasi1" -> 1 // Asumsi verifikasi1 adalah Acc Admin Wilayah
             "approved" -> 2
             "rejected" -> 0 // Jika rejected, tampilkan status kembali ke awal (Pending/Revisi)
-            "complete" -> 3
+            "diterima" -> 3
             else -> 0
         }
 

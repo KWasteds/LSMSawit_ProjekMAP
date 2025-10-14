@@ -12,7 +12,12 @@
         <item
             android:id="@+id/nav_petani"
             android:icon="@drawable/ic_menu_petani"
-            android:title="Petani Tangerang" />
+            android:title="Petani Wilayah" />
+
+        <item
+            android:id="@+id/nav_semua_kebun"
+            android:icon="@drawable/ic_menu_petani"
+            android:title="Data Kebun" />
 
         <item
             android:id="@+id/nav_account"

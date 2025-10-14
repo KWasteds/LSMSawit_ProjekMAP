@@ -16,20 +16,15 @@ import com.example.lsmsawit_projekmap.MapsActivity
 import com.example.lsmsawit_projekmap.R
 import com.example.lsmsawit_projekmap.model.Kebun
 import com.example.lsmsawit_projekmap.model.KebunAdminViewData
-import com.example.lsmsawit_projekmap.model.Notifikasi
-import com.example.lsmsawit_projekmap.ui.admin.VerifikasiDialogListener
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 
-class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
+class SemuaKebunFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var layoutEmpty: LinearLayout
-    private lateinit var adapter: KebunLSMAdapter
+    private lateinit var adapter: SemuaKebunAdapter
     private var fullDataList = listOf<KebunAdminViewData>()
-    private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
@@ -37,23 +32,17 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val v = inflater.inflate(R.layout.fragment_admin_lsm_home, container, false)
+        val v = inflater.inflate(R.layout.fragment_semua_kebun, container, false)
 
-        recyclerView = v.findViewById(R.id.recyclerViewLSM)
-        layoutEmpty = v.findViewById(R.id.layoutEmptyLSM)
-        swipeRefreshLayout = v.findViewById(R.id.swipeRefreshLSM)
+        recyclerView = v.findViewById(R.id.recyclerViewSemuaKebun)
+        layoutEmpty = v.findViewById(R.id.layoutEmptySemuaKebun)
+        swipeRefreshLayout = v.findViewById(R.id.swipeRefreshSemuaKebun)
 
-        swipeRefreshLayout.setOnRefreshListener { loadKebunForVerification() }
+        swipeRefreshLayout.setOnRefreshListener { loadAllKebun() }
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        adapter = KebunLSMAdapter(
+        adapter = SemuaKebunAdapter(
             mutableListOf(),
-            onItemClick = { kebun ->
-                // 🎯 **PANGGIL DIALOG BARU DI SINI** 🎯
-                val dlg = VerifikasiDialogFragmentLSM.newInstance(kebun.idKebun, kebun.namaKebun, kebun.userId)
-                dlg.setTargetFragment(this, 0) // Pastikan dialog mengirim hasil kembali ke fragment ini
-                dlg.show(parentFragmentManager, "verifikasiDialogLSM")
-            },
             onLocationClick = { kebun ->
                 val intent = Intent(requireContext(), MapsActivity::class.java).apply {
                     putExtra("lokasi", kebun.lokasi)
@@ -63,7 +52,7 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
             }
         )
         recyclerView.adapter = adapter
-        loadKebunForVerification()
+        loadAllKebun()
         return v
     }
 
@@ -74,73 +63,24 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
             fullDataList.filter { viewData ->
                 val kebunNameMatch = viewData.kebun.namaKebun.contains(query, ignoreCase = true)
                 val ownerNameMatch = viewData.namaPemilik.contains(query, ignoreCase = true)
+                val statusMatch = viewData.kebun.status.contains(query, ignoreCase = true) // Tambahkan pencarian status
 
-                val displayedStatus = if (viewData.kebun.status.equals("Verifikasi1", ignoreCase = true)) "Pending" else viewData.kebun.status
-                val statusMatch = displayedStatus.contains(query, ignoreCase = true) || viewData.kebun.status.contains(query, ignoreCase = true)
-
-                kebunNameMatch || ownerNameMatch || statusMatch // Tambahkan pencarian status
+                kebunNameMatch || ownerNameMatch || statusMatch
             }
         }
         adapter.updateList(filteredList)
         if (filteredList.isEmpty()) showEmpty() else showList()
     }
 
-    override fun onVerificationResult(idKebun: String, ownerUserId: String, namaKebun: String, newStatus: String, note: String?) {
-        Log.d("AdminLSMHome", "Menerima hasil: status=$newStatus, idKebun=$idKebun")
-        performVerificationUpdate(idKebun, ownerUserId, namaKebun, newStatus, note)
-    }
-
-    private fun performVerificationUpdate(idKebun: String, ownerUserId: String, kebunName: String, newStatus: String, note: String?) {
-        val adminUid = auth.currentUser?.uid ?: return
-
-        // Metode ini sudah siap menerima status "Diterima" dan "Revisi"
-        Log.d("AdminLSMHome", "Menjalankan WriteBatch untuk kebun: $idKebun dengan status: $newStatus")
-        val batch = db.batch()
-
-        val kebunRef = db.collection("kebun").document(idKebun)
-        val kebunUpdates = hashMapOf<String, Any>(
-            "status" to newStatus,
-            "verifierLsmId" to adminUid,
-            "verifiedLsmAt" to FieldValue.serverTimestamp()
-        )
-        if (!note.isNullOrBlank()) kebunUpdates["verificationNote"] = note
-        batch.update(kebunRef, kebunUpdates)
-
-        // Logika Notifikasi bisa ditambahkan/diaktifkan di sini nanti
-        // ...
-
-        batch.commit()
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Verifikasi berhasil disimpan", Toast.LENGTH_SHORT).show()
-                loadKebunForVerification()
-            }
-            .addOnFailureListener { e ->
-                Log.e("AdminLSMHome", "Gagal melakukan batch write", e)
-                Toast.makeText(requireContext(), "Gagal menyimpan verifikasi: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-    }
-
-    private fun loadKebunForVerification() {
+    private fun loadAllKebun() {
         swipeRefreshLayout.isRefreshing = true
         db.collection("kebun")
-            .whereIn("status", listOf("Verifikasi1", "Diterima"))
+            .orderBy("createdAt", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { kebunSnap ->
-                var kebunList = kebunSnap.documents.mapNotNull { d ->
+                val kebunList = kebunSnap.documents.mapNotNull { d ->
                     d.toObject(Kebun::class.java)?.copy(idKebun = d.id)
                 }
-
-                // Urutkan agar Verifikasi1 di atas
-                kebunList = kebunList.sortedWith(
-                    compareBy<Kebun> {
-                        when (it.status) {
-                            "Verifikasi1" -> 0
-                            "Diterima" -> 1
-                            else -> 2   // jaga-jaga kalau ada status lain
-                        }
-                    }
-                )
-
                 if (kebunList.isEmpty()) {
                     showEmpty()
                     swipeRefreshLayout.isRefreshing = false
@@ -149,13 +89,12 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("AdminLSMHome", "Gagal memuat data kebun", e)
+                Log.e("SemuaKebunFragment", "Gagal memuat semua data kebun", e)
                 Toast.makeText(requireContext(), "Gagal memuat data", Toast.LENGTH_SHORT).show()
                 swipeRefreshLayout.isRefreshing = false
                 showEmpty()
             }
     }
-
 
     private fun fetchUserNamesAndCombine(kebunList: List<Kebun>) {
         val userIds = kebunList.map { it.userId }.distinct().filter { it.isNotEmpty() }

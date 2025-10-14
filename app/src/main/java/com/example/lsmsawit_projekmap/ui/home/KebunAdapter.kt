@@ -56,8 +56,14 @@ class KebunAdapter(
         // --- Status visual ---
         holder.tvStatus.text = kebun.status
         when (kebun.status.lowercase()) {
-            "pending" -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
-            "revisi" -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_ditolak)
+            "pending" -> {
+                holder.tvStatus.text = "Pending"
+                holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
+            }
+            "revisi" -> {
+                holder.tvStatus.text = "Revisi"
+                holder.tvStatus.setBackgroundResource(R.drawable.bg_status_ditolak)
+            }
             "verifikasi1" -> {
                 holder.tvStatus.text = "Diproses"
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
@@ -70,8 +76,8 @@ class KebunAdapter(
                 holder.tvStatus.text = "Ditolak"
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_ditolak)
             }
-            "complete" -> {
-                holder.tvStatus.text = "Complete"
+            "diterima" -> {
+                holder.tvStatus.text = "Diterima"
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_diterima)
             }
             else -> holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)

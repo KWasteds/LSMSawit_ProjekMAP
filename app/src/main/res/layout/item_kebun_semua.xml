@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="4dp"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/imgKebunSemua"
+            android:layout_width="0dp"
+            android:layout_height="160dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:src="@drawable/placeholder_image"/>
+
+        <TextView
+            android:id="@+id/tvNamaKebunSemua"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="Nama Kebun Sawit"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            app:layout_constraintTop_toBottomOf="@id/imgKebunSemua"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnLocationSemua"/>
+
+        <TextView
+            android:id="@+id/tvNamaPemilikSemua"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Pemilik: Nama Petani"
+            app:layout_constraintTop_toBottomOf="@id/tvNamaKebunSemua"
+            app:layout_constraintStart_toStartOf="@id/tvNamaKebunSemua"
+            app:layout_constraintEnd_toEndOf="@id/tvNamaKebunSemua"/>
+
+        <TextView
+            android:id="@+id/tvInfoTambahanSemua"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp"
+            android:text="Luas: 10 ha • Tanam: 2010"
+            app:layout_constraintTop_toBottomOf="@id/tvNamaPemilikSemua"
+            app:layout_constraintStart_toStartOf="@id/tvNamaKebunSemua"
+            app:layout_constraintEnd_toEndOf="@id/tvNamaKebunSemua"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ImageView
+            android:id="@+id/btnLocationSemua"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_location"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/colorPrimary"
+            android:contentDescription="Lihat Lokasi"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvNamaKebunSemua"
+            app:layout_constraintBottom_toBottomOf="@id/tvInfoTambahanSemua"
+            android:layout_marginEnd="8dp"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

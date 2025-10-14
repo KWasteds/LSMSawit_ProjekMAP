@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.example.lsmsawit_projekmap.AccountSettingActivity
@@ -28,6 +29,7 @@ class AdminLSMActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
     private lateinit var drawerLayout: DrawerLayout
+    private lateinit var toolbar: Toolbar // 🎯 Jadikan properti class
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,31 +38,27 @@ class AdminLSMActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        val toolbar: Toolbar = findViewById(R.id.toolbar_admin_lsm)
+        toolbar = findViewById(R.id.toolbar_admin_lsm) // 🎯 Inisialisasi toolbar
         setSupportActionBar(toolbar)
 
         drawerLayout = findViewById(R.id.drawer_layout_admin_lsm)
         val navView: NavigationView = findViewById(R.id.nav_view_admin_lsm)
 
-        // 🔹 Drawer Toggle
+        // 🎯 SEMBUNYIKAN MENU "PETANI WILAYAH"
+        navView.menu.findItem(R.id.nav_petani).isVisible = false
+
         val toggle = ActionBarDrawerToggle(
-            this,
-            drawerLayout,
-            toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
+            this, drawerLayout, toolbar,
+            R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        // 🔹 Load Fragment Awal
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.admin_lsm_content, AdminLSMHomeFragment()) // ✅ fragment dummy
-                .commit()
+            replaceFragment(AdminLSMHomeFragment(), "Dashboard Admin LSM")
+            navView.setCheckedItem(R.id.nav_home)
         }
 
-        // 🔹 Tombol Logout
         val logoutButton = navView.findViewById<Button>(R.id.btnLogoutLSM)
         logoutButton?.setOnClickListener {
             Toast.makeText(this, "Logout berhasil", Toast.LENGTH_SHORT).show()
@@ -71,39 +69,50 @@ class AdminLSMActivity : AppCompatActivity() {
             drawerLayout.closeDrawer(GravityCompat.START)
         }
 
-        // 🔹 Navigasi Drawer
+        // 🎯 LOGIKA NAVIGASI BARU
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> {
-                    Toast.makeText(this, "Beranda diklik", Toast.LENGTH_SHORT).show()
+                    replaceFragment(AdminLSMHomeFragment(), "Dashboard Admin LSM")
+                }
+                R.id.nav_semua_kebun -> {
+                    replaceFragment(SemuaKebunFragment(), "Semua Data Kebun")
                 }
                 R.id.nav_account -> {
                     startActivity(Intent(this, AccountSettingActivity::class.java))
                 }
-                else -> Toast.makeText(this, "Menu ${menuItem.title} belum diatur", Toast.LENGTH_SHORT).show()
             }
-
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
 
-        // 🔹 Update profil di header drawer
         updateNavHeaderFromFirestore(navView)
 
-        // 🔹 Fitur Search Bar (id sudah sesuai XML)
+        // 🎯 LOGIKA SEARCH BAR DINAMIS
         val searchField = findViewById<EditText>(R.id.searchFieldLSM)
-
         searchField.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 val query = s.toString()
-                val fragment = supportFragmentManager.findFragmentById(R.id.admin_lsm_content)
-                if (fragment is AdminLSMHomeFragment) {
-                    fragment.filterList(query) // ✅ pastikan ada di fragment
+                val currentFragment = supportFragmentManager.findFragmentById(R.id.admin_lsm_content)
+
+                when (currentFragment) {
+                    is AdminLSMHomeFragment -> currentFragment.filterList(query)
+                    is SemuaKebunFragment -> currentFragment.filterList(query)
                 }
             }
         })
+    }
+
+    // 🎯 FUNGSI HELPER UNTUK MENGGANTI FRAGMENT
+    private fun replaceFragment(fragment: Fragment, title: String) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.admin_lsm_content, fragment)
+            .commit()
+        toolbar.title = title // Mengubah judul toolbar sesuai halaman
+        val searchField = findViewById<EditText>(R.id.searchFieldLSM)
+        searchField.text.clear() // Bersihkan field pencarian setiap pindah halaman
     }
 
     override fun onResume() {
