@@ -78,14 +78,32 @@ class LoginActivity : AppCompatActivity() {
                     db.collection("users").document(uid).get()
                         .addOnSuccessListener { document ->
                             if (document != null && document.exists()) {
-                                val role = document.getString("role") ?: ""
 
+                                val status = document.getString("status") ?: "aktif"
+                                if (status.equals("nonaktif", ignoreCase = true)) {
+                                    // ✅ Logout lagi & tampilkan pesan
+                                    auth.signOut()
+                                    Toast.makeText(
+                                        this,
+                                        "Akun Anda nonaktif. Silakan hubungi admin.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    return@addOnSuccessListener
+                                }
+
+                                // ✅ Kalau status aktif → lanjutkan ke role masing-masing
+                                val role = document.getString("role") ?: ""
                                 when (role.lowercase()) {
                                     "adminwilayah" -> {
                                         startActivity(Intent(this, AdminActivity::class.java))
                                     }
                                     "adminpusat" -> {
-                                        startActivity(Intent(this, com.example.lsmsawit_projekmap.ui.adminlsm.AdminLSMActivity::class.java))
+                                        startActivity(
+                                            Intent(
+                                                this,
+                                                com.example.lsmsawit_projekmap.ui.adminlsm.AdminLSMActivity::class.java
+                                            )
+                                        )
                                     }
                                     else -> {
                                         startActivity(Intent(this, MainActivity::class.java))
@@ -93,11 +111,19 @@ class LoginActivity : AppCompatActivity() {
                                 }
                                 finish()
                             } else {
-                                Toast.makeText(this, "Data user tidak ditemukan di Firestore", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "Data user tidak ditemukan di Firestore",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                         .addOnFailureListener { e ->
-                            Toast.makeText(this, "Gagal ambil data user: ${e.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this,
+                                "Gagal ambil data user: ${e.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                 }
             }

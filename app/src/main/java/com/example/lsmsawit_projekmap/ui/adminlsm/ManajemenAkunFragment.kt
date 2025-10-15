@@ -14,6 +14,8 @@ import com.example.lsmsawit_projekmap.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.example.lsmsawit_projekmap.model.Users
+
 
 class ManajemenAkunFragment : Fragment() {
 
@@ -21,7 +23,7 @@ class ManajemenAkunFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: AkunAdapter
-    private val akunList = mutableListOf<User>()
+    private val akunList = mutableListOf<Users>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,7 +55,7 @@ class ManajemenAkunFragment : Fragment() {
             .addOnSuccessListener { result ->
                 akunList.clear()
                 for (doc in result) {
-                    val user = doc.toObject(User::class.java)
+                    val user = doc.toObject(Users::class.java)
                     user.id = doc.id
                     akunList.add(user)
                 }
@@ -64,22 +66,45 @@ class ManajemenAkunFragment : Fragment() {
             }
     }
 
-    private fun confirmDelete(user: User) {
+    private fun confirmDelete(user: Users) {
         AlertDialog.Builder(requireContext())
             .setTitle("Hapus Akun")
-            .setMessage("Yakin ingin menghapus akun ${user.name}?")
+            .setMessage("Yakin ingin menghapus akun ${user.name}? Semua data terkait juga akan dihapus.")
             .setPositiveButton("Hapus") { _, _ ->
-                db.collection("users").document(user.id!!).delete()
-                    .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "Akun dihapus", Toast.LENGTH_SHORT).show()
-                        loadUsers()
+                val userId = user.id ?: return@setPositiveButton
+
+                // 1. Hapus dokumen user
+                db.collection("users").document(userId).delete()
+
+                // 2. Hapus semua kebun milik user
+                db.collection("kebun")
+                    .whereEqualTo("userId", userId)
+                    .get()
+                    .addOnSuccessListener { kebunSnapshots ->
+                        for (doc in kebunSnapshots) {
+                            db.collection("kebun").document(doc.id).delete()
+                        }
                     }
+
+                // 3. Hapus semua notifikasi milik user
+                db.collection("notifications")
+                    .whereEqualTo("userId", userId)
+                    .get()
+                    .addOnSuccessListener { notifSnapshots ->
+                        for (doc in notifSnapshots) {
+                            db.collection("notifications").document(doc.id).delete()
+                        }
+                    }
+
+                Toast.makeText(requireContext(), "Akun dan data terkait dihapus", Toast.LENGTH_SHORT).show()
+                loadUsers()
             }
             .setNegativeButton("Batal", null)
             .show()
     }
 
-    private fun toggleStatus(user: User) {
+
+    private fun toggleStatus(user: Users) {
         val newStatus = if (user.status == "aktif") "nonaktif" else "aktif"
         db.collection("users").document(user.id!!)
             .update("status", newStatus)
@@ -95,12 +120,14 @@ class ManajemenAkunFragment : Fragment() {
             setPadding(32, 16, 32, 16)
         }
 
-        val nameField = EditText(requireContext()).apply {
-            hint = "Nama"
-        }
+        val nameField = EditText(requireContext()).apply { hint = "Nama" }
         val emailField = EditText(requireContext()).apply {
             hint = "Email"
             inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+        }
+        val passwordField = EditText(requireContext()).apply {
+            hint = "Password"
+            inputType = InputType.TYPE_TEXT_VARIATION_PASSWORD
         }
         val roleSpinner = Spinner(requireContext()).apply {
             adapter = ArrayAdapter(
@@ -112,6 +139,7 @@ class ManajemenAkunFragment : Fragment() {
 
         layout.addView(nameField)
         layout.addView(emailField)
+        layout.addView(passwordField)
         layout.addView(roleSpinner)
 
         AlertDialog.Builder(requireContext())
@@ -120,34 +148,43 @@ class ManajemenAkunFragment : Fragment() {
             .setPositiveButton("Tambah") { _, _ ->
                 val name = nameField.text.toString()
                 val email = emailField.text.toString()
+                val password = passwordField.text.toString()
                 val role = roleSpinner.selectedItem.toString()
 
-                if (name.isEmpty() || email.isEmpty()) {
+                if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
                     Toast.makeText(requireContext(), "Isi semua field", Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
 
-                val newUser = hashMapOf(
-                    "name" to name,
-                    "email" to email,
-                    "role" to role,
-                    "status" to "aktif"
-                )
-                db.collection("users").add(newUser)
-                    .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "Akun berhasil ditambahkan", Toast.LENGTH_SHORT).show()
-                        loadUsers()
+                auth.createUserWithEmailAndPassword(email, password)
+                    .addOnSuccessListener { result ->
+                        val uid = result.user?.uid ?: return@addOnSuccessListener
+                        val newUser = hashMapOf(
+                            "name" to name,
+                            "email" to email,
+                            "role" to role,
+                            "status" to "aktif"
+                        )
+                        db.collection("users").document(uid).set(newUser)
+                            .addOnSuccessListener {
+                                Toast.makeText(requireContext(), "Akun berhasil dibuat", Toast.LENGTH_SHORT).show()
+                                loadUsers()
+                            }
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(requireContext(), "Gagal membuat akun", Toast.LENGTH_SHORT).show()
                     }
             }
             .setNegativeButton("Batal", null)
             .show()
     }
-}
 
-data class User(
-    var id: String? = null,
-    var name: String? = null,
-    var email: String? = null,
-    var role: String? = null,
-    var status: String? = null
-)
+    fun filterList(query: String) {
+        val filtered = akunList.filter { user ->
+            user.name.contains(query, ignoreCase = true) ||
+                    user.city.contains(query, ignoreCase = true)
+        }
+        adapter.updateList(filtered)
+    }
+
+}

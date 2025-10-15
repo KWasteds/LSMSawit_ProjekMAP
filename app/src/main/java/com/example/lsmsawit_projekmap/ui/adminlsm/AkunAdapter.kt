@@ -7,11 +7,12 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lsmsawit_projekmap.R
+import com.example.lsmsawit_projekmap.model.Users
 
 class AkunAdapter(
-    private val akunList: List<User>,
-    private val onDelete: (User) -> Unit,
-    private val onToggle: (User) -> Unit
+    private var akunList: MutableList<Users>,
+    private val onDelete: (Users) -> Unit,
+    private val onToggle: (Users) -> Unit
 ) : RecyclerView.Adapter<AkunAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -36,11 +37,16 @@ class AkunAdapter(
         holder.name.text = user.name
         holder.email.text = user.email
         holder.role.text = "Role: ${user.role}"
-//        holder.city.text = "Kota: ${user.city}"
+        holder.city.text = "Kota: ${user.city.ifEmpty { "-" }}"
 
         holder.btnToggle.text = if (user.status == "aktif") "Nonaktifkan" else "Aktifkan"
-
         holder.btnToggle.setOnClickListener { onToggle(user) }
         holder.btnDelete.setOnClickListener { onDelete(user) }
+    }
+
+    fun updateList(newList: List<Users>) {
+        akunList.clear()
+        akunList.addAll(newList)
+        notifyDataSetChanged()
     }
 }

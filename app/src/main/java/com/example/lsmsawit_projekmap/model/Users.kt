@@ -1,6 +1,7 @@
 package com.example.lsmsawit_projekmap.model
 
 data class Users(
+    var id: String? = null,
     val name: String = "",
     val address: String = "",
     val city: String = "",

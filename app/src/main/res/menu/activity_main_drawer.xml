@@ -26,7 +26,7 @@
 
         <item
             android:id="@+id/nav_manajemen_akun"
-            android:icon="@drawable/ic_menu_map_kebun"
+            android:icon="@drawable/ic_manajemen_akun"
             android:title="Menajemen Akun" />
 
         <item
