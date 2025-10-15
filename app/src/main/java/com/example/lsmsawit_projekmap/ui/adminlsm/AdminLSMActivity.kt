@@ -23,6 +23,8 @@ import com.example.lsmsawit_projekmap.ui.auth.LoginActivity
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.lsmsawit_projekmap.ui.adminlsm.ManajemenAkunFragment
+
 
 class AdminLSMActivity : AppCompatActivity() {
 
@@ -83,8 +85,12 @@ class AdminLSMActivity : AppCompatActivity() {
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.admin_lsm_content, fragment)
                         .commit()
-                }
 
+                    supportActionBar?.title = "Pemetaan Semua Kebun"
+                }
+                R.id.nav_manajemen_akun -> {
+                    replaceFragment(ManajemenAkunFragment(), "Manajemen Akun Pengguna")
+                }
                 R.id.nav_account -> {
                     startActivity(Intent(this, AccountSettingActivity::class.java))
                 }

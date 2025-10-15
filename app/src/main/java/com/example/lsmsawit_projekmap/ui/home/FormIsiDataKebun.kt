@@ -431,7 +431,7 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
         tahun: Int,
         imageUrl: String
     ) {
-        val dataMap = hashMapOf(
+        val dataMap = hashMapOf<String, Any?>(
             "userId" to uid,
             "idKebun" to idK,
             "namaKebun" to nama,
@@ -441,7 +441,11 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             "createdAt" to FieldValue.serverTimestamp(),
             "imageUri" to imageUrl,
             "fotoTimestamp" to photoTimestamp,
-            "status" to "pending"
+            "status" to "pending",
+            "verifierId" to "",
+            "verifiedAt" to null,
+            "verifierLsmId" to "",
+            "verifiedLsmAt" to null
         )
 
         db.collection("kebun").document(idK)

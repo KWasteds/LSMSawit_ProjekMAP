@@ -67,7 +67,8 @@ class RegisterActivity : AppCompatActivity() {
                     "contact" to contact, // Sesuaikan key dengan model data
                     "city" to city,
                     "role" to "petani",
-                    "photoUrl" to null // Tambahkan field photoUrl dengan nilai awal null
+                    "photoUrl" to null,
+                    "status" to "aktif"
                 )
 
                 db.collection("users").document(uid).set(user)

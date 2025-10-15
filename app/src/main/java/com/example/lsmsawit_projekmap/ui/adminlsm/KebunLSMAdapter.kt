@@ -41,7 +41,7 @@ class KebunLSMAdapter(
 
         holder.namaKebun.text = kebun.namaKebun
 
-        // Logika ini sudah benar, jika status "Diterima", maka akan ditampilkan "Diterima"
+        // Set status teks
         if (kebun.status.equals("Verifikasi1", ignoreCase = true)) {
             holder.status.text = "Pending"
         } else {
@@ -56,7 +56,7 @@ class KebunLSMAdapter(
         val lokasi = kebun.lokasi.takeIf { it.isNotEmpty() } ?: "Lokasi tidak ada"
         holder.fotoTimestamp.text = "Diambil: $timestamp ($lokasi)"
 
-        // Logika warna ini sudah benar dan sudah mencakup status "diterima"
+        // Warna status
         when (kebun.status.lowercase()) {
             "pending", "verifikasi1" -> holder.status.setBackgroundResource(R.drawable.bg_status_pending)
             "revisi", "rejected" -> holder.status.setBackgroundResource(R.drawable.bg_status_ditolak)
@@ -64,16 +64,27 @@ class KebunLSMAdapter(
             else -> holder.status.setBackgroundResource(R.drawable.bg_status_pending)
         }
 
+        // Load gambar
         Glide.with(holder.itemView.context)
             .load(kebun.imageUri)
-            .placeholder(R.drawable.placeholder_image) // Perbaikan kecil
+            .placeholder(R.drawable.placeholder_image)
             .error(R.drawable.placeholder_image)
             .centerCrop()
             .into(holder.img)
 
         holder.itemView.setOnClickListener { onItemClick(kebun) }
-        holder.btnDownload.setOnClickListener { onDownloadClick(kebun) }
         holder.btnLocation.setOnClickListener { onLocationClick(kebun) }
+        holder.btnDownload.setOnClickListener { onDownloadClick(kebun) }
+
+        // ✅ Sembunyikan tombol download jika status belum "Diterima"
+        if (kebun.status.equals("Diterima", ignoreCase = true) ||
+            kebun.status.equals("Approved", ignoreCase = true) ||
+            kebun.status.equals("Accepted", ignoreCase = true)
+        ) {
+            holder.btnDownload.visibility = View.VISIBLE
+        } else {
+            holder.btnDownload.visibility = View.GONE
+        }
     }
 
     override fun getItemCount(): Int = list.size

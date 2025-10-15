@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
-import android.view.MenuItem // Pastikan import ini ada
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -66,6 +66,9 @@ class MainActivity : AppCompatActivity() {
 
         val mapsKebunMenuItem = menu.findItem(R.id.nav_maps_semua_kebun)
         mapsKebunMenuItem?.isVisible = false
+
+        val manajemenAkunMenuItem = menu.findItem(R.id.nav_manajemen_akun)
+        manajemenAkunMenuItem?.isVisible = false
 
         appBarConfiguration = AppBarConfiguration(
             setOf(R.id.nav_home),

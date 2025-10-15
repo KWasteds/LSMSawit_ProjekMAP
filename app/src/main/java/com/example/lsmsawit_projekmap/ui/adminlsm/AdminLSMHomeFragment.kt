@@ -25,6 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
 import com.google.firebase.firestore.Query
 
 class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
@@ -125,7 +126,7 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
         // 🔔 Buat Notifikasi untuk Petani
         val notifRef = db.collection("notifications").document()
         val message = when (newStatus) {
-            "Diterima" -> "Selamat! Pengajuan kebun '$kebunName' Anda telah diterima oleh admin pusat."
+            "Diterima" -> "Selamat! Pengajuan kebun '$kebunName' Anda telah diterima oleh Admin Pusat."
             "Revisi" -> "Pengajuan kebun '$kebunName' Anda memerlukan revisi dari admin pusat."
             else -> "Status kebun '$kebunName' Anda telah diperbarui."
         }
@@ -222,6 +223,13 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
     private fun generateKebunPdf(kebun: Kebun) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                val db = FirebaseFirestore.getInstance()
+
+                // Ambil nama-nama user
+                val ownerName = fetchUserNameById(kebun.userId)
+                val adminWilayahName = fetchUserNameById(kebun.verifierId)
+                val adminPusatName = fetchUserNameById(kebun.verifierLsmId)
+
                 val fileName = "Laporan_Kebun_${kebun.idKebun}.pdf"
                 val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(
                     android.os.Environment.DIRECTORY_DOWNLOADS
@@ -262,7 +270,7 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
                     document.add(com.itextpdf.text.Paragraph("$label: ${value ?: "-"}", fieldFont))
                 }
 
-                // 🔹 Muat gambar di background (IO Thread)
+                // Tampilkan gambar jika ada
                 try {
                     val imageUrl = kebun.imageUri
                     if (!imageUrl.isNullOrEmpty()) {
@@ -270,7 +278,7 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
                             .asBitmap()
                             .load(imageUrl)
                             .submit()
-                            .get() // sekarang ini berjalan di IO thread
+                            .get()
 
                         val stream = java.io.ByteArrayOutputStream()
                         bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 80, stream)
@@ -298,19 +306,24 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
                     )
                 }
 
-                // 🔹 Tambahkan data kebun
+                // Tambahkan data kebun + nama user
                 addField("Link Gambar", kebun.imageUri)
                 document.add(com.itextpdf.text.Paragraph(" "))
                 addField("ID Kebun", kebun.idKebun)
                 addField("Nama Kebun", kebun.namaKebun)
-                addField("Luas", "${kebun.luas ?: "-"} ha")
+                addField("Luas", "${kebun.luas} ha")
                 addField("Lokasi", kebun.lokasi)
-                addField("Tahun Tanam", kebun.tahunTanam?.toString())
+                addField("Tahun Tanam", kebun.tahunTanam.toString())
                 addField("Status", kebun.status)
-                addField("User ID (Pemilik)", kebun.userId)
-                document.add(com.itextpdf.text.Paragraph(" "))
-                document.add(com.itextpdf.text.Paragraph(" "))
 
+                // ✅ Ganti ID dengan nama user
+                addField("Pemilik (Petani)", ownerName)
+                addField("Admin Wilayah", adminWilayahName)
+                addField("Waktu Verifikasi (Admin Wilayah)", kebun.verifiedAt?.toDate().toString())
+                addField("Admin Pusat", adminPusatName)
+                addField("Waktu Verifikasi (Admin Pusat)", kebun.verifiedLsmAt?.toDate().toString())
+
+                document.add(com.itextpdf.text.Paragraph(" "))
                 document.close()
                 writer.close()
 
@@ -321,7 +334,6 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
                         Toast.LENGTH_LONG
                     ).show()
 
-                    // 🔹 Buka PDF langsung
                     val pdfFile = java.io.File(filePath)
                     val uri = androidx.core.content.FileProvider.getUriForFile(
                         requireContext(),
@@ -340,11 +352,28 @@ class AdminLSMHomeFragment : Fragment(), VerifikasiDialogListener {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-//                    Toast.makeText(requireContext(), "Gagal membuat PDF: ${e.message}", Toast.LENGTH_LONG).show()
+                    Log.e("PDF", "Gagal membuat PDF: ${e.message}")
                 }
             }
         }
     }
+
+    // ✅ Fungsi helper untuk ambil nama user
+    private suspend fun fetchUserNameById(userId: String): String? {
+        if (userId.isBlank()) return "-"
+        return try {
+            val doc = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .get()
+                .await()
+
+            doc.getString("name") ?: "-"
+        } catch (e: Exception) {
+            "-"
+        }
+    }
+
 
     private fun updateList(list: List<KebunAdminViewData>) {
         fullDataList = list

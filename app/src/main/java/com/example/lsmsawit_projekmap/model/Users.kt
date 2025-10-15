@@ -5,7 +5,9 @@ data class Users(
     val address: String = "",
     val city: String = "",
     val email: String = "",
-    val contact: String = "", // Ganti 'phone' menjadi 'contact' agar konsisten
+    val contact: String = "",
     val role: String = "",
-    val photoUrl: String? = null // Jadikan nullable untuk menandakan foto bisa tidak ada
+    val photoUrl: String? = null,
+    // Tambahkan status di sini
+    val status: String = "aktif"
 )

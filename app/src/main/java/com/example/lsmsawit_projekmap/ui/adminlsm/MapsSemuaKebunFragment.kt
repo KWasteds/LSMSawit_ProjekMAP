@@ -87,48 +87,68 @@ class MapsSemuaKebunFragment : Fragment(), OnMapReadyCallback {
             }
     }
 
-    fun zoomToKebun(idKebun: String) {
+    fun zoomToKebun(query: String) {
         if (googleMap == null) return
 
-        db.collection("kebun")
-            .whereEqualTo("idKebun", idKebun)
+        val collection = db.collection("kebun")
+
+        // Coba cari berdasarkan ID dulu
+        collection.whereEqualTo("idKebun", query)
             .get()
             .addOnSuccessListener { snapshot ->
                 if (!snapshot.isEmpty) {
-                    val doc = snapshot.documents.first()
-                    val lokasiString = doc.getString("lokasi")
-                    val namaKebun = doc.getString("namaKebun") ?: "Tanpa Nama"
-
-                    if (lokasiString != null) {
-                        try {
-                            val parts = lokasiString.split(",")
-                            if (parts.size == 2) {
-                                val lat = parts[0].trim().toDouble()
-                                val lng = parts[1].trim().toDouble()
-                                val position = LatLng(lat, lng)
-
-                                // Tambahkan marker fokus (bisa dibedakan warnanya jika mau)
-                                googleMap?.clear() // hapus marker lama agar fokus
-                                googleMap?.addMarker(
-                                    MarkerOptions()
-                                        .position(position)
-                                        .title(namaKebun)
-                                )
-                                googleMap?.animateCamera(
-                                    CameraUpdateFactory.newLatLngZoom(position, 14f)
-                                )
-                            }
-                        } catch (e: Exception) {
-                            Log.e("MapsSemuaKebun", "Error parsing lokasi", e)
-                        }
-                    }
+                    // Ditemukan berdasarkan ID
+                    fokuskanKeKebun(snapshot.documents.first())
                 } else {
-                    Log.w("MapsSemuaKebun", "Kebun dengan ID $idKebun tidak ditemukan")
+                    // Jika tidak ditemukan, coba cari berdasarkan namaKebun (case-insensitive)
+                    collection.get().addOnSuccessListener { allSnapshot ->
+                        val kebunByName = allSnapshot.documents.find {
+                            it.getString("namaKebun")?.equals(query, ignoreCase = true) == true
+                        }
+
+                        if (kebunByName != null) {
+                            fokuskanKeKebun(kebunByName)
+                        } else {
+                            Log.w("MapsSemuaKebun", "Kebun dengan ID/nama '$query' tidak ditemukan")
+                        }
+                    }.addOnFailureListener { e ->
+                        Log.e("MapsSemuaKebun", "Gagal mencari kebun berdasarkan nama", e)
+                    }
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("MapsSemuaKebun", "Gagal mencari kebun", e)
+                Log.e("MapsSemuaKebun", "Gagal mencari kebun berdasarkan ID", e)
             }
+    }
+
+    private fun fokuskanKeKebun(doc: com.google.firebase.firestore.DocumentSnapshot) {
+        val lokasiString = doc.getString("lokasi")
+        val namaKebun = doc.getString("namaKebun") ?: "Tanpa Nama"
+
+        if (lokasiString != null) {
+            try {
+                val parts = lokasiString.split(",")
+                if (parts.size == 2) {
+                    val lat = parts[0].trim().toDouble()
+                    val lng = parts[1].trim().toDouble()
+                    val position = com.google.android.gms.maps.model.LatLng(lat, lng)
+
+                    googleMap?.clear()
+                    googleMap?.addMarker(
+                        com.google.android.gms.maps.model.MarkerOptions()
+                            .position(position)
+                            .title(namaKebun)
+                    )
+                    googleMap?.animateCamera(
+                        com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(position, 14f)
+                    )
+
+                    Log.d("MapsSemuaKebun", "Berhasil zoom ke kebun: $namaKebun ($lat, $lng)")
+                }
+            } catch (e: Exception) {
+                Log.e("MapsSemuaKebun", "Error parsing lokasi", e)
+            }
+        }
     }
 
     // Lifecycle agar MapView tidak error

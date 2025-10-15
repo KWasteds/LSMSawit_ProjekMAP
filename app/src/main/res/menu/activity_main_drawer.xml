@@ -25,6 +25,11 @@
             android:title="Pemetaan Kebun" />
 
         <item
+            android:id="@+id/nav_manajemen_akun"
+            android:icon="@drawable/ic_menu_map_kebun"
+            android:title="Menajemen Akun" />
+
+        <item
             android:id="@+id/nav_account"
             android:icon="@drawable/ic_menu_manage"
             android:title="Account Settings" />

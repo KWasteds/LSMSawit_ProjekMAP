@@ -1,5 +1,7 @@
 package com.example.lsmsawit_projekmap.model
 
+import com.google.firebase.Timestamp
+
 data class Kebun(
     val idKebun: String = "",
     val userId: String = "",
@@ -9,11 +11,13 @@ data class Kebun(
     val tahunTanam: Int = 0,
     val imageUri: String = "",
     val fotoTimestamp: String? = null,
-    val status: String = "Pending"
-//    val verifiedAt: String? = null,
-//    val verifiedLsmAt: String? = null,
-//    val verifierId: String = "",
-//    val verifierLsmId: String = "",
-//    val createdAt: String? = null
+    val status: String = "Pending",
+
+    val verifiedAt: Timestamp? = null,
+    val verifiedLsmAt: Timestamp? = null,
+    val verifierId: String = "",
+    val verifierLsmId: String = "",
+    val createdAt: Timestamp? = null
 )
+
 

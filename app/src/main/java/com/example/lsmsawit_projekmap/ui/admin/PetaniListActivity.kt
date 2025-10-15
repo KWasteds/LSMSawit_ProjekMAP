@@ -73,6 +73,16 @@ class PetaniListActivity : AppCompatActivity() {
             drawerLayout.closeDrawer(GravityCompat.START)
         }
 
+        val menu = navigationView.menu
+        val semuaKebunMenuItem = menu.findItem(R.id.nav_semua_kebun)
+        semuaKebunMenuItem?.isVisible = false
+
+        val mapsKebunMenuItem = menu.findItem(R.id.nav_maps_semua_kebun)
+        mapsKebunMenuItem?.isVisible = false
+
+        val manajemenAkunMenuItem = menu.findItem(R.id.nav_manajemen_akun)
+        manajemenAkunMenuItem?.isVisible = false
+
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> startActivity(Intent(this, AdminActivity::class.java))
