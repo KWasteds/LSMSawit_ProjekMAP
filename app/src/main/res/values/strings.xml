@@ -1,6 +1,6 @@
 <resources>
     <!-- App Info -->
-    <string name="app_name">LSMSawit_ProjekMAP</string>
+    <string name="app_name">CekSawit</string>
 
     <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>

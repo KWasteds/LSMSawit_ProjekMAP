@@ -36,7 +36,11 @@ import android.database.Cursor
 import java.text.SimpleDateFormat
 import java.util.Date
 import android.provider.MediaStore
-import kotlin.math.log
+import com.example.lsmsawit_projekmap.ui.home.ViewModel.KebunFormViewModel
+import androidx.fragment.app.activityViewModels
+import androidx.core.widget.addTextChangedListener
+import com.google.firebase.storage.FirebaseStorage
+import android.content.DialogInterface // Import untuk onDismiss
 
 class FormIsiDataKebun : BottomSheetDialogFragment() {
 
@@ -69,10 +73,9 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
     private lateinit var imageLauncher: ActivityResultLauncher<Intent>
     private var selectedImageUri: android.net.Uri? = null
     private lateinit var cameraLauncher: ActivityResultLauncher<Uri>
-    private val cameraPermission = arrayOf(Manifest.permission.CAMERA)
     private var photoTimestamp: String? = null
 
-
+    private val formVM: KebunFormViewModel by activityViewModels()
 
     private fun createImageUri(): Uri? {
         val context = requireContext()
@@ -98,7 +101,7 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             lokasi: String?,
             luas: Double?,
             tahunTanam: Int?,
-            status: String? // TAMBAHKAN INI
+            status: String?
         ): FormIsiDataKebun {
             val fragment = FormIsiDataKebun()
             val args = Bundle().apply {
@@ -116,7 +119,6 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
 
     private fun launchCamera() {
         val newPhotoUri = createImageUri()
-        // Lakukan pengecekan null di sini
         if (newPhotoUri != null) {
             photoUri = newPhotoUri
             cameraLauncher.launch(newPhotoUri)
@@ -124,11 +126,11 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             Toast.makeText(requireContext(), "Gagal membuat file gambar", Toast.LENGTH_SHORT).show()
         }
     }
+
     private val requestCameraPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            // Jika user memberi izin, baru buka kamera
             launchCamera()
         } else {
             Toast.makeText(requireContext(), "Izin kamera diperlukan", Toast.LENGTH_SHORT).show()
@@ -140,7 +142,7 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
     ): View? {
         val v = inflater.inflate(R.layout.form_isidata_kebun, container, false)
 
-        // Inisialisasi view
+        // 1. Inisialisasi View
         etNama = v.findViewById(R.id.etNamaKebun)
         etId = v.findViewById(R.id.etIdKebun)
         etLokasi = v.findViewById(R.id.etLokasi)
@@ -157,74 +159,170 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
-        // Launcher untuk pilih gambar dari galeri
-        imageLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-                selectedImageUri = result.data!!.data
-                imagePreview.setImageURI(selectedImageUri)
-
-                selectedImageUri?.let { uri ->
-                    getTimestampFromUri(uri)
-                }
-            }
-        }
-
-        cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-            if (success) {
-                photoUri?.let { uri ->
-                    imagePreview.setImageURI(uri)
-                    selectedImageUri = uri
-
-                    val sdf = SimpleDateFormat("dd/MM/yyyy, HH:mm:ss", Locale.getDefault())
-                    val timestamp = sdf.format(Date())
-                    photoTimestamp = timestamp
-                    tvTimestamp.text = "Waktu foto: $timestamp"
-                }
-            }
-        }
-
-        btnInsertImage.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = "image/*"
-            imageLauncher.launch(intent)
-        }
-
-        // Mode edit jika ada argumen
+        // 2. Tentukan Mode Edit dan Inisialisasi/Pemulihan Data ke ViewModel
         arguments?.let { args ->
             val id = args.getString("idKebun")
-
             if (!id.isNullOrEmpty()) {
                 isEditMode = true
                 oldIdKebun = id
 
-                // Isi semua field dengan data yang ada
-                etId.setText(id)
-                etNama.setText(args.getString("namaKebun"))
-                etLokasi.setText(args.getString("lokasi") ?: "")
-                etLuas.setText(args.getDouble("luas").toString())
-                etTahun.setText(args.getInt("tahunTanam").toString())
+                // Kunci: Hanya muat data Arguments ke ViewModel JIKA ID di VM masih null.
+                // Jika tidak null, berarti data sudah dimuat saat rotasi.
+                if (formVM.idKebun.value == null) {
+                    formVM.idKebun.value = id
+                    formVM.namaKebun.value = args.getString("namaKebun")
+                    formVM.lokasi.value = args.getString("lokasi") ?: ""
+                    formVM.luas.value = args.getDouble("luas").toString()
+                    formVM.tahunTanam.value = args.getInt("tahunTanam").toString()
+                    // Image dan Timestamp TIDAK perlu dimuat dari Arguments di sini,
+                    // karena Arguments tidak membawa data image/timestamp draft.
+                }
 
                 btnHapus.visibility = View.VISIBLE
                 btnSimpan.text = "Update"
             }
 
+            // Atur status editable
             val status = args.getString("status")
             val isEditable = when (status?.lowercase()) {
                 "pending", "revisi" -> true
                 else -> false
             }
 
-            // Jika form ini dalam mode edit TAPI statusnya tidak lagi bisa diedit
             if (isEditMode && !isEditable) {
-                disableForm() // Maka kunci formnya
+                disableForm()
             }
         }
 
+        // 3. Isi View dari ViewModel (Data yang dipertahankan saat rotasi)
+        // Gunakan operator Elvis (?: "") untuk menangani String? dari LiveData
+        etId.setText(formVM.idKebun.value ?: "")
+        etNama.setText(formVM.namaKebun.value ?: "")
+        etLokasi.setText(formVM.lokasi.value ?: "")
+        etLuas.setText(formVM.luas.value ?: "")
+        etTahun.setText(formVM.tahunTanam.value ?: "")
+
+        formVM.selectedImageUri.observe(viewLifecycleOwner) { uri ->
+            if (uri != null) {
+                // 1. Pulihkan Image Preview
+                imagePreview.setImageURI(uri)
+
+                // 2. Sinkronkan variabel Fragment
+                selectedImageUri = uri
+
+                // Catatan: Timestamp akan diperbarui oleh observer LiveData Timestamp di bawah,
+                // tetapi jika Anda tidak punya observer timestamp, lakukan di sini:
+                // tvTimestamp.text = formVM.photoTimestamp.value ?: "..."
+            } else {
+                // Reset View jika URI null (ketika form baru dibuka)
+                imagePreview.setImageDrawable(null)
+                // Pastikan timestamp juga direset jika gambar dihapus/disetel null
+                tvTimestamp.text = "Tanggal & Waktu Foto: Tidak Tersedia"
+                selectedImageUri = null
+            }
+        }
+
+        // 🔑 LOKASI KODE BARU: Observer untuk Timestamp
+        formVM.photoTimestamp.observe(viewLifecycleOwner) { ts ->
+            if (ts.isNullOrBlank()) {
+                tvTimestamp.text = "Tanggal & Waktu Foto: Tidak Tersedia"
+                photoTimestamp = null
+            } else {
+                tvTimestamp.text = "Waktu foto: $ts"
+                // Sinkronkan variabel Fragment (penting untuk kode Fragment lainnya)
+                photoTimestamp = ts
+            }
+        }
+
+        // 4. Binding listener (Simpan perubahan ke VM segera)
+        etNama.addTextChangedListener { formVM.namaKebun.value = it.toString() }
+        etId.addTextChangedListener { formVM.idKebun.value = it.toString() }
+        etLokasi.addTextChangedListener { formVM.lokasi.value = it.toString() }
+        etLuas.addTextChangedListener { formVM.luas.value = it.toString() }
+        etTahun.addTextChangedListener { formVM.tahunTanam.value = it.toString() }
+
+        // 5. Launcher Image
+        imageLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+                // Di dalam imageLauncher result handler
+                val newUri = result.data!!.data
+
+                // 1. Ambil SEMUA flags izin yang diberikan oleh Content Provider
+                val receivedFlags = result.data!!.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+
+                // 2. Tentukan flags yang AKAN dipertahankan (Read dan Persistable)
+                val flagsToPersist = Intent.FLAG_GRANT_READ_URI_PERMISSION
+
+                newUri?.let { uri ->
+                    imagePreview.setImageURI(uri)
+                    getTimestampFromUri(uri)
+
+                    selectedImageUri = uri
+
+                    // 🔑 KUNCI PERBAIKAN: Hanya panggil takePersistableUriPermission jika URI memiliki izin yang valid.
+                    // Kita hanya mencoba mempertahankan izin BACA.
+                    if (receivedFlags and Intent.FLAG_GRANT_READ_URI_PERMISSION == Intent.FLAG_GRANT_READ_URI_PERMISSION) {
+                        try {
+                            val contentResolver = requireContext().contentResolver
+
+                            // Panggil takePersistableUriPermission hanya dengan flag READ yang Anda terima
+                            contentResolver.takePersistableUriPermission(uri, flagsToPersist)
+                            Log.d("URI_PERMISSION", "Persistable READ permission taken successfully.")
+                        } catch (e: Exception) {
+                            // Tangani pengecualian (termasuk IllegalArgumentException)
+                            Log.e("URI_PERMISSION", "Failed to take persistable URI permission: ${e.message}")
+                            Toast.makeText(requireContext(), "Error Izin Persisten: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                    } else {
+                        // Jika bahkan izin Baca dasar tidak diterima, notifikasi
+                        Toast.makeText(requireContext(), "URI tidak memiliki izin baca yang diperlukan.", Toast.LENGTH_LONG).show()
+                    }
+
+                    formVM.setImage(uri, photoTimestamp)
+                }
+            }
+        }
+
+        // 6. Launcher Kamera
+        cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success) {
+                photoUri?.let { uri ->
+                    imagePreview.setImageURI(uri)
+                    // photoUri adalah URI yang digunakan saat capture
+
+                    // PERBAIKAN: Tetapkan selectedImageUri Fragment
+                    selectedImageUri = uri
+
+                    getTimestampFromUri(uri) // Ini akan mengatur photoTimestamp Fragment
+                    formVM.setImage(uri, photoTimestamp) // Update VM (menggunakan photoTimestamp Fragment yang baru)
+                }
+            }
+        }
+
+        // 7. Listener Tombol
+        btnInsertImage.setOnClickListener {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "image/*"
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+            }
+            imageLauncher.launch(intent)
+        }
+        btnTakePhoto.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.CAMERA
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                launchCamera()
+            } else {
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
         btnAmbilLokasi.setOnClickListener { ambilLokasi() }
         btnSimpan.setOnClickListener { attemptSave() }
-
         btnHapus.setOnClickListener {
             if (isEditMode && !oldIdKebun.isNullOrBlank()) {
                 val dlg = androidx.appcompat.app.AlertDialog.Builder(requireContext())
@@ -237,72 +335,66 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             }
         }
 
-        btnTakePhoto = v.findViewById(R.id.btnTakePhoto)
-
-        btnTakePhoto.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.CAMERA
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                // Sudah diizinkan → langsung buka kamera
-                launchCamera()
-            } else {
-                // Minta izin dulu
-                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-            }
-        }
-
-
         return v
     }
 
+    // 🗑️ Tambahkan pembersihan ViewModel saat Fragment ditutup
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        // Reset ViewModel. Ini memastikan saat form dibuka kembali, ia kosong (tidak ada draft).
+        formVM.clearData()
+    }
+
+
+    /**
+     * Mengambil timestamp dari metadata gambar (jika ada) atau waktu saat ini.
+     * Mengatur `photoTimestamp` dan `tvTimestamp`.
+     */
     private fun getTimestampFromUri(uri: Uri) {
         val projection = arrayOf(MediaStore.Images.Media.DATE_TAKEN)
-        val cursor: Cursor? = requireContext().contentResolver.query(uri, projection, null, null, null)
+        val cursor: Cursor? = try {
+            requireContext().contentResolver.query(uri, projection, null, null, null)
+        } catch (e: Exception) {
+            Log.e("GetTimestamp", "Error querying MediaStore: ${e.message}")
+            null
+        }
+
+        var timestamp: String
+        val sdf = SimpleDateFormat("dd/MM/yyyy, HH:mm:ss", Locale.getDefault())
 
         cursor?.use {
             if (it.moveToFirst()) {
                 val dateTakenIndex = it.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN)
                 if (dateTakenIndex != -1) {
                     val dateTakenMillis = it.getLong(dateTakenIndex)
-                    val sdf = SimpleDateFormat("dd/MM/yyyy, HH:mm:ss", Locale.getDefault())
-                    val timestamp = sdf.format(Date(dateTakenMillis))
+                    timestamp = sdf.format(Date(dateTakenMillis))
                     photoTimestamp = timestamp
                     tvTimestamp.text = "Waktu foto: $timestamp"
-                    return
+                    return // Selesai jika berhasil dari metadata
                 }
             }
         }
+
         // Jika gagal mendapatkan dari metadata, gunakan waktu saat ini
-        val sdf = SimpleDateFormat("dd/MM/yyyy, HH:mm:ss", Locale.getDefault())
-        val timestamp = sdf.format(Date())
+        timestamp = sdf.format(Date())
         photoTimestamp = timestamp
-        tvTimestamp.text = "Waktu foto: $timestamp"
+        tvTimestamp.text = "Waktu foto: $timestamp (waktu capture)"
     }
 
-    private fun attemptSave() {
-        val nama = etNama.text.toString().trim()
-        val idK = etId.text.toString().trim()
-        val lokasiTxt = etLokasi.text.toString().trim()
-        val luas = etLuas.text.toString().toDoubleOrNull()
-        val tahun = etTahun.text.toString().toIntOrNull()
 
-        if (nama.isEmpty()) {
-            etNama.error = "Nama kebun wajib diisi"; return
-        }
-        if (idK.isEmpty() || !ID_REGEX.matches(idK)) {
-            etId.error = "ID kebun tidak valid"; return
-        }
-        if (luas == null) {
-            etLuas.error = "Luas wajib diisi (angka)"; return
-        }
-        if (tahun == null) {
-            etTahun.error = "Tahun tanam wajib diisi"; return
-        }
-        if (lokasiTxt.isNotEmpty() && !LOC_REGEX.matches(lokasiTxt)) {
-            etLokasi.error = "Format lokasi salah (contoh: -6.2341,106.5567)"; return
-        }
+    private fun attemptSave() {
+        // Ambil data dari ViewModel
+        val nama = formVM.namaKebun.value?.trim() ?: ""
+        val idK = formVM.idKebun.value?.trim() ?: ""
+        val lokasiTxt = formVM.lokasi.value?.trim()
+        val luas = formVM.luas.value?.toDoubleOrNull()
+        val tahun = formVM.tahunTanam.value?.toIntOrNull()
+
+        if (nama.isEmpty()) { etNama.error = "Nama kebun wajib diisi"; return }
+        if (idK.isEmpty() || !ID_REGEX.matches(idK)) { etId.error = "ID kebun tidak valid"; return }
+        if (luas == null) { etLuas.error = "Luas wajib diisi (angka)"; return }
+        if (tahun == null) { etTahun.error = "Tahun tanam wajib diisi"; return }
+        if (!lokasiTxt.isNullOrEmpty() && !LOC_REGEX.matches(lokasiTxt)) { etLokasi.error = "Format lokasi salah (contoh: -6.2341,106.5567)"; return }
 
         setSavingState(true)
 
@@ -313,11 +405,14 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             return
         }
 
-        // 🔹 Jika user memilih gambar, upload ke Cloudinary dulu
-        if (selectedImageUri != null) {
-            uploadToCloudinaryAndSave(uid, idK, nama, lokasiTxt, luas, tahun, selectedImageUri!!)
+        val currentImageUri = formVM.selectedImageUri.value
+        val currentPhotoTimestamp = formVM.photoTimestamp.value
+
+        this.photoTimestamp = currentPhotoTimestamp
+
+        if (currentImageUri != null) {
+            uploadToCloudinaryAndSave(uid, idK, nama, lokasiTxt, luas, tahun, currentImageUri)
         } else {
-            // 🔹 Jika tidak ada gambar, langsung simpan data Firestore dengan imageUrl kosong
             saveKebunData(uid, idK, nama, lokasiTxt, luas, tahun, "")
         }
     }
@@ -328,10 +423,7 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "Kebun dihapus", Toast.LENGTH_SHORT).show()
                 setSavingState(false)
-
-                // Tambahan: kirim sinyal penghapusan juga
                 setFragmentResult("kebun_changed", bundleOf("changed" to true))
-
                 dismiss()
             }
             .addOnFailureListener { e ->
@@ -374,7 +466,9 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
                 if (location != null) {
                     val lat = location.latitude
                     val lon = location.longitude
-                    etLokasi.setText(String.format(Locale.US, "%.6f,%.6f", lat, lon))
+                    val lokasiStr = String.format(Locale.US, "%.6f,%.6f", lat, lon)
+                    etLokasi.setText(lokasiStr)
+                    formVM.lokasi.value = lokasiStr // Simpan ke VM
                     Toast.makeText(requireContext(), "Lokasi berhasil diambil", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(requireContext(), "Tidak dapat menemukan lokasi", Toast.LENGTH_SHORT).show()
@@ -395,31 +489,6 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
-    }
-
-    private fun uploadImageAndSave(
-        uid: String,
-        idK: String,
-        nama: String,
-        lokasiTxt: String?,
-        luas: Double,
-        tahun: Int,
-        uri: android.net.Uri
-    ) {
-        val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference
-        val imageRef = storageRef.child("kebun_images/$idK.jpg")
-
-        imageRef.putFile(uri)
-            .addOnSuccessListener {
-                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                    // Setelah upload sukses, simpan data Firestore dengan URL download
-                    saveKebunData(uid, idK, nama, lokasiTxt, luas, tahun, downloadUri.toString())
-                }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Upload gambar gagal: ${e.message}", Toast.LENGTH_LONG).show()
-                setSavingState(false)
-            }
     }
 
     private fun saveKebunData(
@@ -471,8 +540,8 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
         tahun: Int,
         uri: Uri
     ) {
-        val cloudName = "dw5jofoyu"        // ganti sesuai Cloudinary kamu
-        val uploadPreset = "fotokebun"     // ganti sesuai Cloudinary kamu
+        val cloudName = "dw5jofoyu"
+        val uploadPreset = "fotokebun"
         val uploadUrl = "https://api.cloudinary.com/v1_1/$cloudName/image/upload"
 
         val inputStream = requireContext().contentResolver.openInputStream(uri)
