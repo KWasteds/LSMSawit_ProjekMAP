@@ -113,4 +113,14 @@ dependencies {
 
     // Download to pdf
     implementation("com.itextpdf:itextg:5.5.10")
+
+    // Room Database
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+
+    // Room Kotlin Extensions (Coroutines)
+    implementation("androidx.room:room-ktx:2.6.1")
+
+    // Work Manager
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
 }

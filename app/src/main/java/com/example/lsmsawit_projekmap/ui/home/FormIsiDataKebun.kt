@@ -41,6 +41,14 @@ import androidx.fragment.app.activityViewModels
 import androidx.core.widget.addTextChangedListener
 import com.google.firebase.storage.FirebaseStorage
 import android.content.DialogInterface // Import untuk onDismiss
+import android.content.Context
+import android.net.ConnectivityManager
+import com.example.lsmsawit_projekmap.model.PendingKebun
+import com.example.lsmsawit_projekmap.model.AppDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import androidx.lifecycle.lifecycleScope
 
 class FormIsiDataKebun : BottomSheetDialogFragment() {
 
@@ -381,7 +389,6 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
         tvTimestamp.text = "Waktu foto: $timestamp (waktu capture)"
     }
 
-
     private fun attemptSave() {
         // Ambil data dari ViewModel
         val nama = formVM.namaKebun.value?.trim() ?: ""
@@ -389,12 +396,19 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
         val lokasiTxt = formVM.lokasi.value?.trim()
         val luas = formVM.luas.value?.toDoubleOrNull()
         val tahun = formVM.tahunTanam.value?.toIntOrNull()
+        val connectivity = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val isOnline = connectivity.activeNetworkInfo?.isConnectedOrConnecting == true
 
         if (nama.isEmpty()) { etNama.error = "Nama kebun wajib diisi"; return }
         if (idK.isEmpty() || !ID_REGEX.matches(idK)) { etId.error = "ID kebun tidak valid"; return }
         if (luas == null) { etLuas.error = "Luas wajib diisi (angka)"; return }
         if (tahun == null) { etTahun.error = "Tahun tanam wajib diisi"; return }
         if (!lokasiTxt.isNullOrEmpty() && !LOC_REGEX.matches(lokasiTxt)) { etLokasi.error = "Format lokasi salah (contoh: -6.2341,106.5567)"; return }
+
+        if (!isOnline) {
+            saveOfflineDraft()
+            return
+        }
 
         setSavingState(true)
 
@@ -414,6 +428,58 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
             uploadToCloudinaryAndSave(uid, idK, nama, lokasiTxt, luas, tahun, currentImageUri)
         } else {
             saveKebunData(uid, idK, nama, lokasiTxt, luas, tahun, "")
+        }
+
+        // kalau online → lanjut ke proses normal
+        // saveOnline()
+    }
+
+    private fun saveOfflineDraft() {
+        val uid = auth.currentUser?.uid ?: run {
+            Toast.makeText(requireContext(), "Harap login dahulu", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Ambil data dari ViewModel, berikan default jika null/empty
+        val kebunId = formVM.idKebun.value?.trim().takeIf { !it.isNullOrEmpty() } ?: run {
+            Toast.makeText(requireContext(), "ID kebun wajib diisi sebelum menyimpan draft", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val nama = formVM.namaKebun.value?.trim() ?: ""
+        val lokasi = formVM.lokasi.value?.trim() ?: ""
+        val luas = formVM.luas.value?.toDoubleOrNull() ?: 0.0
+        val tahun = formVM.tahunTanam.value?.toIntOrNull() ?: 0
+        val imageUriStr = formVM.selectedImageUri.value?.toString()
+
+        val pending = PendingKebun(
+            action = if (isEditMode) "update" else "create",
+            kebunId = kebunId,
+            nama = nama,
+            lokasi = lokasi,
+            luas = luas,
+            tahunTanam = tahun,
+            imageUri = imageUriStr,
+            userId = uid,
+            timestamp = System.currentTimeMillis()
+        )
+
+        val dao = AppDatabase.getDatabase(requireContext()).pendingKebunDao()
+
+        // gunakan lifecycleScope supaya coroutine di-cancel saat fragment dihancurkan
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                dao.insertPending(pending)
+                // kembali ke main thread untuk toast/dismiss
+                launch(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Disimpan offline. Akan dikirim saat online.", Toast.LENGTH_LONG).show()
+                    dismiss()
+                }
+            } catch (e: Exception) {
+                launch(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Gagal menyimpan draft offline: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 

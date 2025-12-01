@@ -17,6 +17,9 @@ import com.example.lsmsawit_projekmap.model.Kebun
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import android.content.Context
+import androidx.work.*
+import com.example.lsmsawit_projekmap.sync.KebunSyncWorker
 
 class HomeFragment : Fragment() {
 
@@ -108,6 +111,7 @@ class HomeFragment : Fragment() {
     private fun reloadKebun() {
         swipeRefreshLayout.isRefreshing = true
         val userId = auth.currentUser?.uid ?: return
+        triggerKebunSync(requireContext())
 
         db.collection("kebun")
             .whereEqualTo("userId", userId)
@@ -133,5 +137,20 @@ class HomeFragment : Fragment() {
                 recyclerView.visibility = View.GONE
                 Log.e("HomeFragment", "Error: ${e.message}", e)
             }
+    }
+
+    fun triggerKebunSync(context: Context) {
+        val request = OneTimeWorkRequestBuilder<KebunSyncWorker>()
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            )
+            .build()
+
+        WorkManager.getInstance(context)
+            .enqueue(request)
+
+        Log.d("KebunSync", "One-time sync triggered")
     }
 }
