@@ -54,21 +54,27 @@
             android:exported="false"
             android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar" />
 
+        <!-- ✅ Halaman Splash Screen -->
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <!-- ✅ Halaman Login -->
         <activity
             android:name=".ui.auth.LoginActivity"
             android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar.Fullscreen"
             android:exported="false" />
 
-        <!-- ✅ Halaman Register (launcher) -->
+        <!-- ✅ Halaman Register -->
         <activity
             android:name=".ui.auth.RegisterActivity"
             android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar.Fullscreen"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <!-- ✅ Halaman Setting Akun -->

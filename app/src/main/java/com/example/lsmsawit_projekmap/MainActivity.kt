@@ -25,6 +25,7 @@ import com.example.lsmsawit_projekmap.ui.home.FormIsiDataKebun
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.lsmsawit_projekmap.session.SessionManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -101,13 +102,23 @@ class MainActivity : AppCompatActivity() {
 
         val logoutButton = navView.findViewById<Button>(R.id.btnLogout)
         logoutButton?.setOnClickListener {
+
+            // Hapus session local (SharedPreferences)
+            val session = SessionManager(this)
+            session.logout()
+
+            // Logout dari Firebase Authentication
+            auth.signOut()
+
             Toast.makeText(this, "Logout berhasil", Toast.LENGTH_SHORT).show()
-            auth.signOut() // Sign out dari Firebase Auth
+
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
-            finish() // Tutup MainActivity
+
+            finish() // Tutup Activity saat ini
         }
+
 
         updateNavHeaderFromFirestore()
     }

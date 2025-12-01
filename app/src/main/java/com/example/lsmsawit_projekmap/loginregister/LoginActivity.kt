@@ -10,12 +10,14 @@ import com.example.lsmsawit_projekmap.databinding.ActivityLoginBinding
 import com.example.lsmsawit_projekmap.ui.admin.AdminActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.lsmsawit_projekmap.session.SessionManager
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
+    private lateinit var session: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +27,7 @@ class LoginActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
+        session = SessionManager(this)
 
         // Tombol Login
         binding.btnLogin.setOnClickListener {
@@ -93,6 +96,7 @@ class LoginActivity : AppCompatActivity() {
 
                                 // ✅ Kalau status aktif → lanjutkan ke role masing-masing
                                 val role = document.getString("role") ?: ""
+                                session.createLoginSession(uid, role)
                                 when (role.lowercase()) {
                                     "adminwilayah" -> {
                                         startActivity(Intent(this, AdminActivity::class.java))

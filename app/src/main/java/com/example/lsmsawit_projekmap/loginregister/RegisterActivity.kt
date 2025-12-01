@@ -31,7 +31,7 @@ class RegisterActivity : AppCompatActivity() {
             val email = binding.etEmail.text.toString().trim()
             val pass = binding.etPassword.text.toString()
             val address = binding.etAddress.text.toString().trim()
-            val contact = binding.etContact.text.toString().trim() // Menggunakan `etContact` dari XML Anda
+            val contact = binding.etContact.text.toString().trim()
             val city = binding.etCity.text.toString().trim()
 
             if (name.isEmpty()) { binding.etName.error = "Nama wajib diisi"; return@setOnClickListener }
@@ -64,7 +64,7 @@ class RegisterActivity : AppCompatActivity() {
                     "name" to name,
                     "email" to email,
                     "address" to address,
-                    "contact" to contact, // Sesuaikan key dengan model data
+                    "contact" to contact,
                     "city" to city,
                     "role" to "petani",
                     "photoUrl" to null,

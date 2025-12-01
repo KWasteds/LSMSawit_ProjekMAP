@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.text.TextWatcher
 import android.text.Editable
+import com.example.lsmsawit_projekmap.session.SessionManager
 
 class AdminActivity : AppCompatActivity() {
 
@@ -59,16 +60,25 @@ class AdminActivity : AppCompatActivity() {
                 .commit()
         }
 
-        // ✅ Tombol Logout di Drawer
         val logoutButton = navView.findViewById<Button>(R.id.btnLogout)
         logoutButton?.setOnClickListener {
-            Toast.makeText(this, "Logout berhasil", Toast.LENGTH_SHORT).show()
+
+            // 🔥 Hapus session local (SharedPreferences)
+            val session = SessionManager(this)
+            session.logout()
+
+            // 🔥 Logout dari Firebase Authentication
             auth.signOut()
+
+            Toast.makeText(this, "Logout berhasil", Toast.LENGTH_SHORT).show()
+
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
-            drawerLayout.closeDrawer(GravityCompat.START)
+
+            finish() // Tutup Activity saat ini
         }
+
 
         val menu = navView.menu
         val semuaKebunMenuItem = menu.findItem(R.id.nav_semua_kebun)

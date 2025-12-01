@@ -24,7 +24,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.lsmsawit_projekmap.ui.adminlsm.ManajemenAkunFragment
-
+import com.example.lsmsawit_projekmap.session.SessionManager
 
 class AdminLSMActivity : AppCompatActivity() {
 
@@ -61,15 +61,25 @@ class AdminLSMActivity : AppCompatActivity() {
             navView.setCheckedItem(R.id.nav_home)
         }
 
-        val logoutButton = navView.findViewById<Button>(R.id.btnLogoutLSM)
+        val logoutButton = navView.findViewById<Button>(R.id.btnLogout)
         logoutButton?.setOnClickListener {
-            Toast.makeText(this, "Logout berhasil", Toast.LENGTH_SHORT).show()
+
+            // 🔥 Hapus session local (SharedPreferences)
+            val session = SessionManager(this)
+            session.logout()
+
+            // 🔥 Logout dari Firebase Authentication
             auth.signOut()
+
+            Toast.makeText(this, "Logout berhasil", Toast.LENGTH_SHORT).show()
+
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
-            drawerLayout.closeDrawer(GravityCompat.START)
+
+            finish() // Tutup Activity saat ini
         }
+
 
         // 🎯 LOGIKA NAVIGASI BARU
         navView.setNavigationItemSelectedListener { menuItem ->
