@@ -54,7 +54,6 @@ class KebunSyncWorker(context: Context, params: WorkerParameters) :
         }
 
         val createdAtTs = com.google.firebase.Timestamp.now()
-
         val lokasi = item.lokasi
 
         val map = mapOf(
@@ -80,17 +79,32 @@ class KebunSyncWorker(context: Context, params: WorkerParameters) :
 
     private suspend fun uploadUpdate(item: PendingKebun) {
 
-        val updateMap = mutableMapOf<String, Any>(
-            "namaKebun" to item.nama,
-            "lokasi" to item.lokasi,
-            "luas" to item.luas,
-            "tahunTanam" to item.tahunTanam
-        )
-
-        if (item.imageUri != null && item.imageUri.startsWith("content://")) {
-            val newImage = uploadImageToCloudinary(item.imageUri)
-            updateMap["imageUri"] = newImage
+        val imageUrl = if (item.imageUri != null) {
+            uploadImageToCloudinary(item.imageUri)
+        } else {
+            ""
         }
+
+        val createdAtTs = com.google.firebase.Timestamp.now()
+        val lokasi = item.lokasi
+
+        val updateMap = mapOf(
+            "idKebun" to item.kebunId,
+            "namaKebun" to item.nama,
+            "lokasi" to lokasi,
+            "luas" to item.luas,
+            "tahunTanam" to item.tahunTanam,
+            "imageUri" to imageUrl,
+            "status" to "pending",
+
+            "userId" to item.userId,
+            "createdAt" to createdAtTs,
+            "fotoTimestamp" to "01/01/1970, 07:00:00",
+            "verifiedAt" to null,
+            "verifiedLsmAt" to null,
+            "verifierId" to "",
+            "verifierLsmId" to "",
+        )
 
         db.collection("kebun").document(item.kebunId).update(updateMap).await()
     }

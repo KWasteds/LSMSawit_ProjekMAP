@@ -40,7 +40,7 @@ import com.example.lsmsawit_projekmap.ui.home.ViewModel.KebunFormViewModel
 import androidx.fragment.app.activityViewModels
 import androidx.core.widget.addTextChangedListener
 import com.google.firebase.storage.FirebaseStorage
-import android.content.DialogInterface // Import untuk onDismiss
+import android.content.DialogInterface
 import android.content.Context
 import android.net.ConnectivityManager
 import com.example.lsmsawit_projekmap.model.PendingKebun
@@ -49,6 +49,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
+import android.media.ExifInterface
 
 class FormIsiDataKebun : BottomSheetDialogFragment() {
 
@@ -359,34 +360,58 @@ class FormIsiDataKebun : BottomSheetDialogFragment() {
      * Mengatur `photoTimestamp` dan `tvTimestamp`.
      */
     private fun getTimestampFromUri(uri: Uri) {
-        val projection = arrayOf(MediaStore.Images.Media.DATE_TAKEN)
-        val cursor: Cursor? = try {
-            requireContext().contentResolver.query(uri, projection, null, null, null)
+        val sdf = SimpleDateFormat("dd/MM/yyyy, HH:mm:ss", Locale.getDefault())
+        var finalDate: Date? = null
+
+        try {
+            // 1. Coba baca EXIF metadata
+            val inputStream = requireContext().contentResolver.openInputStream(uri)
+            if (inputStream != null) {
+                val exif = androidx.exifinterface.media.ExifInterface(inputStream)
+
+                val exifDateStr =
+                    exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
+                        ?: exif.getAttribute(ExifInterface.TAG_DATETIME)
+                        ?: exif.getAttribute(ExifInterface.TAG_DATETIME_DIGITIZED)
+
+                if (!exifDateStr.isNullOrBlank()) {
+                    // Format bawaan EXIF: "yyyy:MM:dd HH:mm:ss"
+                    val exifFormat = SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.getDefault())
+                    finalDate = exifFormat.parse(exifDateStr)
+                }
+                inputStream.close()
+            }
         } catch (e: Exception) {
-            Log.e("GetTimestamp", "Error querying MediaStore: ${e.message}")
-            null
+            Log.e("Timestamp", "EXIF read error: ${e.message}")
         }
 
-        var timestamp: String
-        val sdf = SimpleDateFormat("dd/MM/yyyy, HH:mm:ss", Locale.getDefault())
-
-        cursor?.use {
-            if (it.moveToFirst()) {
-                val dateTakenIndex = it.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN)
-                if (dateTakenIndex != -1) {
-                    val dateTakenMillis = it.getLong(dateTakenIndex)
-                    timestamp = sdf.format(Date(dateTakenMillis))
-                    photoTimestamp = timestamp
-                    tvTimestamp.text = "Waktu foto: $timestamp"
-                    return // Selesai jika berhasil dari metadata
+        // 2. Jika EXIF gagal → coba dari MediaStore
+        if (finalDate == null) {
+            try {
+                val projection = arrayOf(MediaStore.Images.Media.DATE_TAKEN)
+                requireContext().contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val idx = cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN)
+                        if (idx != -1) {
+                            val taken = cursor.getLong(idx)
+                            if (taken > 0) finalDate = Date(taken)
+                        }
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e("Timestamp", "MediaStore read error: ${e.message}")
             }
         }
 
-        // Jika gagal mendapatkan dari metadata, gunakan waktu saat ini
-        timestamp = sdf.format(Date())
-        photoTimestamp = timestamp
-        tvTimestamp.text = "Waktu foto: $timestamp (waktu capture)"
+        // 3. Jika semua gagal → fallback waktu saat ini
+        if (finalDate == null) {
+            finalDate = Date()
+            tvTimestamp.text = "Waktu foto: ${sdf.format(finalDate)} (fallback)"
+        } else {
+            tvTimestamp.text = "Waktu foto: ${sdf.format(finalDate)}"
+        }
+
+        photoTimestamp = sdf.format(finalDate)
     }
 
     private fun attemptSave() {
