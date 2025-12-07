@@ -54,4 +54,12 @@
         <item name="colorSecondary">@color/teal_200</item>
     </style>
 
+    <!-- Logo & Loading Screen -->
+    <style name="Theme.LSMSawit_ProjekMAP.Splash" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_app</item>
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="android:windowBackground">@color/white</item>
+        <item name="postSplashScreenTheme">@style/Theme.LSMSawit_ProjekMAP</item>
+    </style>
+
 </resources>

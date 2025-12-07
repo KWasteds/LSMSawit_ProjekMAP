@@ -123,4 +123,7 @@ dependencies {
 
     // Work Manager
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+
+    // Splash Screen
+    implementation(libs.androidx.core.splashscreen)
 }

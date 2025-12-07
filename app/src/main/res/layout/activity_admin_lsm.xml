@@ -107,7 +107,7 @@
 
             <!-- Tombol Logout -->
             <Button
-                android:id="@+id/btnLogoutLSM"
+                android:id="@+id/btnLogout"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:text="Logout"
