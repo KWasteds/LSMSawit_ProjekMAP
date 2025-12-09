@@ -55,6 +55,13 @@
             android:exported="false"
             android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar" />
 
+        <!-- ✅ Halaman Prediksi Harga Beras -->
+        <activity
+            android:name=".RicePriceActivity"
+            android:exported="false"
+            android:label="Prediksi Harga Beras"
+            android:theme="@style/Theme.LSMSawit_ProjekMAP.NoActionBar" />
+
         <!-- ✅ Halaman Splash Screen -->
         <activity
             android:name=".SplashActivity"

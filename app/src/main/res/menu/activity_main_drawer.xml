@@ -30,6 +30,11 @@
             android:title="Menajemen Akun" />
 
         <item
+            android:id="@+id/nav_rice_price"
+            android:title="Rice Price"
+            android:icon="@drawable/ic_rice" />
+
+        <item
             android:id="@+id/nav_account"
             android:icon="@drawable/ic_menu_manage"
             android:title="Account Settings" />

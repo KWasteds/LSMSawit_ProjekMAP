@@ -126,4 +126,13 @@ dependencies {
 
     // Splash Screen
     implementation(libs.androidx.core.splashscreen)
+
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+
+    // GSON Converter (untuk konversi JSON ke Kotlin Data Class)
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // Coroutine (untuk ViewModel Scope)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 }

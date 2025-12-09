@@ -87,6 +87,9 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_account -> {
                     startActivity(Intent(this, AccountSettingActivity::class.java))
                 }
+                R.id.nav_rice_price -> {
+                    startActivity(Intent(this, RicePriceActivity::class.java))
+                }
             }
 
 
