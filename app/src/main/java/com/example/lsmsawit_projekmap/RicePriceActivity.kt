@@ -1,23 +1,21 @@
 package com.example.lsmsawit_projekmap
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.view.MenuItem
-import androidx.drawerlayout.widget.DrawerLayout
-import com.google.android.material.navigation.NavigationView
-import androidx.core.view.GravityCompat
 import android.content.Intent
+import android.os.Bundle
 import android.util.Log
-import android.view.Menu
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.example.lsmsawit_projekmap.databinding.ActivityRicePriceBinding
 import com.example.lsmsawit_projekmap.session.SessionManager
 import com.example.lsmsawit_projekmap.ui.auth.LoginActivity
+import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -26,49 +24,54 @@ class RicePriceActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRicePriceBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
-    private lateinit var drawerLayout: DrawerLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 🚨 Inflate binding yang benar
+        // 1. Cek Session Paling Awal
+        val session = SessionManager(this)
+        if (!session.isSessionValid()) {
+            performLogout() // Logout rapi jika session habis
+            return
+        }
+
+        // 2. Perpanjang Session (Hanya update waktu, tidak menimpa data)
+        session.refreshSession()
+
+        // 3. Setup Layout
         binding = ActivityRicePriceBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        // 🚨 Set Toolbar dari layout activity_rice_price.xml
+        // Cek Auth Firebase (Backup check)
+        if (auth.currentUser == null) {
+            performLogout()
+            return
+        }
+
         setSupportActionBar(binding.toolbarRice)
 
-        drawerLayout = binding.drawerLayoutRice
-        val navView: NavigationView = binding.navViewRice
+        supportActionBar?.apply {
+            title = "Harga Beras"
+            setDisplayHomeAsUpEnabled(false)
+            setDisplayShowTitleEnabled(true)
+        }
 
-        // --- Perbaikan sesuai permintaan ---
-
-        // 1. NONAKTIFKAN SIDEBAR & Tombol Hamburger
-        // Sidebar tidak bisa dibuka dengan swipe
+        val drawerLayout = binding.drawerLayoutRice
+        val navView = binding.navViewRice
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
-        // Sembunyikan tombol hamburger/up di Toolbar
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        supportActionBar?.title = "Harga Beras"
-
-        // 2. Muat RicePriceFragment secara manual
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                // 🚨 Ganti ID container fragment ke ricePriceContainer
                 .replace(R.id.ricePriceContainer, RicePriceFragment())
                 .commit()
         }
 
-        // --- Konfigurasi Navigasi (Hanya Logika, tanpa tombol hamburger) ---
-
-        // Setup Listener NavView
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> {
-                    // Kembali ke MainActivity dan clear stack
                     val intent = Intent(this, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                     startActivity(intent)
@@ -77,42 +80,22 @@ class RicePriceActivity : AppCompatActivity() {
                 R.id.nav_account -> {
                     startActivity(Intent(this, AccountSettingActivity::class.java))
                 }
-                R.id.nav_rice_price -> {
-                    // Karena sudah di Activity ini, tidak perlu tindakan
-                }
             }
-
-            // Walaupun terkunci, tetap close drawer untuk keamanan
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
 
-        // --- Logika Autentikasi dan Logout ---
+        // 4. Setup Tombol Logout dengan Benar
+        // Kita harus ambil Header View dulu karena tombol ada di dalam header
+        val headerView = navView.getHeaderView(0)
 
-        if (auth.currentUser == null) {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-            return
-        }
+        // Gunakan headerView.findViewById, BUKAN navView.findViewById
+        val logoutButton = headerView.findViewById<Button>(R.id.btnLogout)
 
-        // Ambil tombol logout dari Nav Header (asumsi ID R.id.btnLogout ada di nav_header_main)
-        val logoutButton = navView.getHeaderView(0).findViewById<Button>(R.id.btnLogout)
         logoutButton?.setOnClickListener {
-
-            val session = SessionManager(this)
-            session.logout()
-            auth.signOut()
-
-            Toast.makeText(this, "Logout berhasil", Toast.LENGTH_SHORT).show()
-
-            val intent = Intent(this, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-
-            finish()
+            performLogout()
         }
 
-        // Update Nav Header
         updateNavHeaderFromFirestore(navView)
     }
 
@@ -125,33 +108,47 @@ class RicePriceActivity : AppCompatActivity() {
 
         db.collection("users").document(uid).get()
             .addOnSuccessListener { document ->
-                // ... (Logika update Nav Header tetap sama)
                 if (document != null && document.exists()) {
                     nameText.text = document.getString("name") ?: "Nama Pengguna"
-                    emailText.text = document.getString("email") ?: "email@contoh.com"
+                    emailText.text = document.getString("email") ?: "-"
                     val photoUrl = document.getString("photoUrl")
-                    if (!photoUrl.isNullOrEmpty()) {
-                        Glide.with(this).load(photoUrl).transform(CircleCrop())
+
+                    if (!photoUrl.isNullOrEmpty() && !isDestroyed) {
+                        Glide.with(this)
+                            .load(photoUrl)
+                            .transform(CircleCrop())
                             .placeholder(R.drawable.ic_account_circle)
                             .into(imageView)
-                    } else {
-                        imageView.setImageResource(R.drawable.ic_account_circle)
                     }
                 }
             }
-            .addOnFailureListener { exception ->
-                Log.e("RicePriceActivity", "Error getting user data", exception)
-            }
+            .addOnFailureListener { e -> Log.e("RicePrice", "Error user data", e) }
+    }
+
+    private fun performLogout() {
+        val session = SessionManager(this)
+        session.logout()
+        auth.signOut()
+
+        Toast.makeText(this, "Logout berhasil", Toast.LENGTH_SHORT).show()
+
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 
     override fun onResume() {
         super.onResume()
-        if (auth.currentUser != null) {
-            // Panggil updateNavHeader dengan navView yang benar
-            updateNavHeaderFromFirestore(binding.navViewRice)
+        // Pastikan session tetap valid saat kembali ke activity ini
+        val session = SessionManager(this)
+        if (!session.isSessionValid()) {
+            performLogout()
+        } else {
+            // Jika valid, update UI header jika perlu
+            if (auth.currentUser != null) {
+                updateNavHeaderFromFirestore(binding.navViewRice)
+            }
         }
     }
-
-    // Tidak perlu override onOptionsItemSelected yang berhubungan dengan drawer,
-    // karena tombol up/hamburger sudah disembunyikan.
 }

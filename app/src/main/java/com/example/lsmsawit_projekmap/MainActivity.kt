@@ -122,7 +122,6 @@ class MainActivity : AppCompatActivity() {
             finish() // Tutup Activity saat ini
         }
 
-
         updateNavHeaderFromFirestore()
     }
 
