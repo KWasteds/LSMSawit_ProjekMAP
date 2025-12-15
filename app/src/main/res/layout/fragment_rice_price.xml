@@ -1,37 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="20dp">
 
-    <EditText
-        android:id="@+id/inputGlobal"
-        android:hint="Global Price"
-        android:inputType="numberDecimal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-    <EditText
-        android:id="@+id/inputNasional"
-        android:hint="Nasional Price"
-        android:inputType="numberDecimal"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"/>
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btnPredict"
-        android:text="Predict"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"/>
+        <!-- Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Rice Price Prediction"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:paddingBottom="16dp" />
 
-    <TextView
-        android:id="@+id/txtResult"
-        android:text="Result will appear here"
-        android:textSize="18sp"
-        android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-</LinearLayout>
+        <!-- National Price -->
+        <EditText
+            android:id="@+id/etNational"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="National Rice Price"
+            android:inputType="numberDecimal"
+            android:background="@android:drawable/edit_text"
+            android:padding="12dp" />
+
+        <!-- Lag 1 -->
+        <EditText
+            android:id="@+id/etLag1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Lag 1 (Previous Day)"
+            android:inputType="numberDecimal"
+            android:layout_marginTop="12dp"
+            android:background="@android:drawable/edit_text"
+            android:padding="12dp" />
+
+        <!-- Lag 3 -->
+        <EditText
+            android:id="@+id/etLag3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Lag 3 (3 Days Ago)"
+            android:inputType="numberDecimal"
+            android:layout_marginTop="12dp"
+            android:background="@android:drawable/edit_text"
+            android:padding="12dp" />
+
+        <!-- Predict Button -->
+        <Button
+            android:id="@+id/btnPredict"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Predict Price"
+            android:layout_marginTop="20dp" />
+
+        <!-- Progress -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            android:layout_gravity="center" />
+
+        <!-- Result -->
+        <TextView
+            android:id="@+id/tvResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Prediction result will appear here"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginTop="20dp" />
+
+    </LinearLayout>
+
+</ScrollView>

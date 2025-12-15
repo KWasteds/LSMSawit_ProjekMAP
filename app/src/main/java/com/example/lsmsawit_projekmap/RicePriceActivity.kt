@@ -15,6 +15,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.example.lsmsawit_projekmap.databinding.ActivityRicePriceBinding
 import com.example.lsmsawit_projekmap.session.SessionManager
 import com.example.lsmsawit_projekmap.ui.auth.LoginActivity
+import com.example.lsmsawit_projekmap.ui.riceprice.RicePriceFragment
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
