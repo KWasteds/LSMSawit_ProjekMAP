@@ -29,28 +29,6 @@
             android:background="@android:drawable/edit_text"
             android:padding="12dp" />
 
-        <!-- Lag 1 -->
-        <EditText
-            android:id="@+id/etLag1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Lag 1 (Previous Day)"
-            android:inputType="numberDecimal"
-            android:layout_marginTop="12dp"
-            android:background="@android:drawable/edit_text"
-            android:padding="12dp" />
-
-        <!-- Lag 3 -->
-        <EditText
-            android:id="@+id/etLag3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Lag 3 (3 Days Ago)"
-            android:inputType="numberDecimal"
-            android:layout_marginTop="12dp"
-            android:background="@android:drawable/edit_text"
-            android:padding="12dp" />
-
         <!-- Predict Button -->
         <Button
             android:id="@+id/btnPredict"

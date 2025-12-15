@@ -28,11 +28,12 @@ class RicePriceFragment : Fragment(R.layout.fragment_rice_price) {
         observeState()
 
         binding.btnPredict.setOnClickListener {
-            viewModel.predictPrice(
-                nationalPrice = binding.etNational.text.toString().toDouble(),
-                lag1 = binding.etLag1.text.toString().toDouble(),
-                lag3 = binding.etLag3.text.toString().toDouble()
-            )
+            val harga = binding.etNational.text.toString().toDoubleOrNull()
+            if (harga == null) {
+                Toast.makeText(requireContext(), "Input tidak valid", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            viewModel.predict(harga)
         }
     }
 

@@ -7,26 +7,26 @@ class RicePriceViewModel(
     private val repository: RicePriceRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableLiveData<RicePriceUiState>()
-    val uiState: LiveData<RicePriceUiState> = _uiState
+    val uiState = MutableLiveData<RicePriceUiState>()
 
-    fun predictPrice(
-        nationalPrice: Double,
-        lag1: Double,
-        lag3: Double
-    ) {
-        _uiState.value = RicePriceUiState.Loading
-
+    fun predict(hargaNasionalHariIni: Double) {
         viewModelScope.launch {
+            uiState.value = RicePriceUiState.Loading
             try {
+                // 🔹 nanti diganti API real / Firestore
+                val nasionalHistory = listOf(17000.0, 17050.0, 17100.0, 17080.0, 17040.0, 17020.0)
+                val globalHistory = listOf(420.0, 422.0, 425.0, 424.0, 423.0, 421.0)
+
                 val result = repository.predictRicePrice(
-                    nationalPrice, lag1, lag3
+                    hargaNasionalHariIni,
+                    nasionalHistory,
+                    globalHistory
                 )
-                _uiState.value = RicePriceUiState.Success(result)
+
+                uiState.value = RicePriceUiState.Success(result)
+
             } catch (e: Exception) {
-                _uiState.value = RicePriceUiState.Error(
-                    e.message ?: "Unknown error"
-                )
+                uiState.value = RicePriceUiState.Error(e.message ?: "Unknown error")
             }
         }
     }
