@@ -61,13 +61,16 @@ class SemuaKebunFragment : Fragment() {
             fullDataList
         } else {
             fullDataList.filter { viewData ->
+
                 val kebunNameMatch = viewData.kebun.namaKebun.contains(query, ignoreCase = true)
                 val ownerNameMatch = viewData.namaPemilik.contains(query, ignoreCase = true)
-                val statusMatch = viewData.kebun.status.contains(query, ignoreCase = true) // Tambahkan pencarian status
+                val statusMatch = viewData.kebun.status.contains(query, ignoreCase = true)
+                val cityMatch = viewData.city.contains(query, ignoreCase = true)
 
-                kebunNameMatch || ownerNameMatch || statusMatch
+                kebunNameMatch || ownerNameMatch || statusMatch || cityMatch
             }
         }
+
         adapter.updateList(filteredList)
         if (filteredList.isEmpty()) showEmpty() else showList()
     }
@@ -98,24 +101,46 @@ class SemuaKebunFragment : Fragment() {
 
     private fun fetchUserNamesAndCombine(kebunList: List<Kebun>) {
         val userIds = kebunList.map { it.userId }.distinct().filter { it.isNotEmpty() }
+
         if (userIds.isEmpty()) {
-            val combinedList = kebunList.map { KebunAdminViewData(it, "Nama tidak ditemukan") }
+            val combinedList = kebunList.map {
+                KebunAdminViewData(
+                    it,
+                    "Nama tidak ditemukan",
+                    ""
+                )
+            }
             updateList(combinedList)
             swipeRefreshLayout.isRefreshing = false
             return
         }
-        db.collection("users").whereIn(com.google.firebase.firestore.FieldPath.documentId(), userIds).get()
+
+        db.collection("users")
+            .whereIn(com.google.firebase.firestore.FieldPath.documentId(), userIds)
+            .get()
             .addOnSuccessListener { usersSnap ->
-                val userNameMap = usersSnap.documents.associate { doc ->
-                    doc.id to (doc.getString("name") ?: "Tanpa Nama")
+
+                val userMap = usersSnap.documents.associate { doc ->
+                    val name = doc.getString("name") ?: "Tanpa Nama"
+                    val city = doc.getString("city") ?: ""
+                    doc.id to Pair(name, city)
                 }
+
                 val combinedList = kebunList.map { kebun ->
-                    KebunAdminViewData(kebun, userNameMap[kebun.userId] ?: "Tidak Ditemukan")
+                    val data = userMap[kebun.userId]
+                    KebunAdminViewData(
+                        kebun,
+                        data?.first ?: "Tidak Ditemukan",
+                        data?.second ?: ""
+                    )
                 }
+
                 updateList(combinedList)
             }
             .addOnFailureListener {
-                val combinedList = kebunList.map { KebunAdminViewData(it, "Gagal Memuat Nama") }
+                val combinedList = kebunList.map {
+                    KebunAdminViewData(it, "Gagal Memuat Nama", "")
+                }
                 updateList(combinedList)
             }
             .addOnCompleteListener {
