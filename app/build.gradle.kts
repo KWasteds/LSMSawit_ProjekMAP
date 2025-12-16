@@ -135,4 +135,7 @@ dependencies {
 
     // Coroutine (untuk ViewModel Scope)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // Diagram ML
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }
