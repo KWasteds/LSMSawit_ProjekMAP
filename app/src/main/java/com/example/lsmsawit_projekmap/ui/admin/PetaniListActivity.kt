@@ -25,6 +25,7 @@ import com.google.android.material.navigation.NavigationView
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.example.lsmsawit_projekmap.RicePriceActivity
 import com.example.lsmsawit_projekmap.session.SessionManager
 
 class PetaniListActivity : AppCompatActivity() {
@@ -97,6 +98,7 @@ class PetaniListActivity : AppCompatActivity() {
             when (menuItem.itemId) {
                 R.id.nav_home -> startActivity(Intent(this, AdminActivity::class.java))
                 R.id.nav_petani -> { /* sudah di halaman ini */ }
+                R.id.nav_rice_price -> {startActivity(Intent(this, RicePriceActivity::class.java))}
                 R.id.nav_account -> startActivity(Intent(this, AccountSettingActivity::class.java))
             }
             drawerLayout.closeDrawer(GravityCompat.START)

@@ -9,8 +9,8 @@ class RicePriceRepository(
 
     suspend fun predictRicePrice(
         hargaNasionalHariIni: Double,
-        nasionalHistory: List<Double>, // 6 hari ke belakang
-        globalHistory: List<Double>     // 6 hari ke belakang
+        nasionalHistory: List<Double>,
+        globalHistory: List<Double>
     ): Double {
 
         if (nasionalHistory.size != 6 || globalHistory.size != 6) {

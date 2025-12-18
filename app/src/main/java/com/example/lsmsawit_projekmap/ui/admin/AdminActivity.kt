@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.text.TextWatcher
 import android.text.Editable
+import com.example.lsmsawit_projekmap.RicePriceActivity
 import com.example.lsmsawit_projekmap.session.SessionManager
 
 class AdminActivity : AppCompatActivity() {
@@ -103,6 +104,9 @@ class AdminActivity : AppCompatActivity() {
                 R.id.nav_petani -> {
                     Toast.makeText(this, "Menu ${menuItem.title} diklik", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, PetaniListActivity::class.java))
+                }
+                R.id.nav_rice_price -> {
+                    startActivity(Intent(this, RicePriceActivity::class.java))
                 }
                 R.id.nav_account -> {
                     val intent = Intent(this, AccountSettingActivity::class.java)

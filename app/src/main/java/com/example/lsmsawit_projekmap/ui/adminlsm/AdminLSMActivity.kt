@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.example.lsmsawit_projekmap.AccountSettingActivity
 import com.example.lsmsawit_projekmap.R
+import com.example.lsmsawit_projekmap.RicePriceActivity
 import com.example.lsmsawit_projekmap.ui.auth.LoginActivity
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -100,6 +101,9 @@ class AdminLSMActivity : AppCompatActivity() {
                 }
                 R.id.nav_manajemen_akun -> {
                     replaceFragment(ManajemenAkunFragment(), "Manajemen Akun Pengguna")
+                }
+                R.id.nav_rice_price -> {
+                    startActivity(Intent(this, RicePriceActivity::class.java))
                 }
                 R.id.nav_account -> {
                     startActivity(Intent(this, AccountSettingActivity::class.java))
